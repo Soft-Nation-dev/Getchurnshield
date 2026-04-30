@@ -1,0 +1,682 @@
+/* ============================================================
+   CHURN SHIELD — FINTECH BUILD
+   12px radii · Inter font · sleek minimalism · responsive
+   ============================================================ */
+
+:root {
+    --bg: #0b0f1a;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --border: #1e293b;
+    --border-2: #334155;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #2563eb;
+    --accent-deep: #1d4ed8;
+    --accent-soft: #1e3a8a;
+    --danger: #ef4444;
+    --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Roboto", system-ui, -apple-system, sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* 0. LIVE DEBUG FEED + RESET ------------------------------- */
+#debug-feed {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+}
+#debug-log {
+    width: 100%;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.7);
+    color: #a7f3d0;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 10px;
+    line-height: 1.5;
+    border: 1px solid rgba(167, 243, 208, 0.2);
+    border-radius: var(--radius) var(--radius) 0 0;
+    pointer-events: none;
+    backdrop-filter: blur(6px);
+}
+#debug-log .log-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#debug-log .log-line .ts {
+    color: #64748b;
+    margin-right: 6px;
+}
+#reset-demo {
+    background: rgba(15, 23, 42, 0.85);
+    color: #94a3b8;
+    border: 1px solid rgba(167, 243, 208, 0.2);
+    border-top-color: rgba(167, 243, 208, 0.1);
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    text-align: center;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+#reset-demo:hover {
+    background: rgba(239, 68, 68, 0.22);
+    color: #fecaca;
+}
+
+/* 1. TEST NAV ----------------------------------------------- */
+.test-nav {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: calc(100vw - 24px);
+}
+.test-nav button {
+    background: rgba(30, 41, 59, 0.85);
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+.test-nav button:hover {
+    background: var(--surface-2);
+    transform: translateY(-1px);
+}
+
+/* 2. VIEWPORT ----------------------------------------------- */
+.view {
+    padding: 100px 24px 48px;
+    text-align: center;
+    max-width: 460px;
+    margin: 0 auto;
+}
+.view h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+}
+.view p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin: 0 0 24px;
+}
+
+.main-input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-2);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.main-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.continue-btn {
+    width: 100%;
+    margin-top: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+.continue-btn:hover { background: var(--accent-deep); transform: translateY(-1px); }
+.continue-btn:active { transform: translateY(0); }
+
+/* 3. THE TRAY (BOTTOM-RIGHT) -------------------------------- */
+#shield-drawer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+    padding: 18px 18px 16px;
+    border-radius: var(--radius);
+    transform: translateY(180%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform 0.55s cubic-bezier(0.17, 0.89, 0.32, 1.27),
+        opacity 0.4s ease;
+    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.35);
+    z-index: 999;
+    overflow: hidden;
+}
+#shield-drawer.drawer-hidden {
+    transform: translateY(180%);
+    opacity: 0;
+    pointer-events: none;
+}
+#shield-drawer.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    animation: trayGlow 2.6s infinite ease-in-out;
+}
+
+@keyframes trayGlow {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(37, 99, 235, 0.35),
+            0 0 0 0 rgba(96, 165, 250, 0.55);
+    }
+    50% {
+        box-shadow:
+            0 16px 38px rgba(37, 99, 235, 0.6),
+            0 0 0 10px rgba(96, 165, 250, 0);
+    }
+}
+
+/* GOLD HOTSPOT — Pro-Tip success drawer */
+#shield-drawer.gold {
+    background: linear-gradient(135deg, #d4af37, #b8941f);
+    box-shadow: 0 12px 32px rgba(212, 175, 55, 0.45);
+}
+#shield-drawer.gold.active {
+    animation: goldGlow 2.6s infinite ease-in-out;
+}
+#shield-drawer.gold #shield-message {
+    color: #0b0f1a;
+    font-weight: 600;
+}
+#shield-drawer.gold #open-shield-btn {
+    background: #0b0f1a;
+    color: #d4af37;
+}
+#shield-drawer.gold #open-shield-btn:hover {
+    background: #1e293b;
+    color: #fbbf24;
+}
+#shield-drawer.gold #drawer-close { display: none; }
+
+@keyframes goldGlow {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px rgba(212, 175, 55, 0.4),
+            0 0 0 0 rgba(251, 191, 36, 0.55);
+    }
+    50% {
+        box-shadow:
+            0 16px 38px rgba(212, 175, 55, 0.65),
+            0 0 0 12px rgba(251, 191, 36, 0);
+    }
+}
+
+.drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+#shield-message {
+    color: white;
+    font-size: 14px;
+    line-height: 1.45;
+    padding-right: 24px;
+    font-weight: 500;
+}
+#open-shield-btn {
+    background: white;
+    color: var(--accent-soft);
+    border: none;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+#open-shield-btn:hover { background: #e0e7ff; transform: translateY(-1px); }
+
+#drawer-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.18);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+#drawer-close:hover { background: rgba(255, 255, 255, 0.32); }
+
+/* 4. RECENT TAB + PANEL ------------------------------------- */
+#recent-tab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 998;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: 999px;
+    padding: 10px 14px 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+#recent-tab.hidden { display: none; }
+#recent-tab:hover { transform: translateY(-2px); background: #2a3a52; }
+.recent-tab-icon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    padding-left: 2px;
+}
+.recent-tab-count {
+    background: var(--accent);
+    color: white;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    text-align: center;
+}
+
+#recent-panel {
+    position: fixed;
+    bottom: 76px;
+    right: 20px;
+    z-index: 1100;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+#recent-panel.hidden { display: none; }
+
+.recent-panel-header {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-2);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+#recent-panel-close {
+    width: 26px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#recent-panel-close:hover { background: rgba(255, 255, 255, 0.2); }
+
+#recent-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    color: #e2e8f0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 10px;
+}
+.recent-item:last-child { border-bottom: none; }
+.recent-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.recent-replay {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease;
+}
+.recent-replay:hover { background: var(--accent-deep); }
+.recent-empty {
+    padding: 18px 14px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* 5. CUSTOM VIDEO PLAYER (PiP-STYLE) ------------------------ */
+#video-container {
+    position: fixed;
+    z-index: 1200;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border-2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition:
+        width 0.3s ease,
+        bottom 0.3s ease,
+        right 0.3s ease,
+        top 0.3s ease,
+        left 0.3s ease,
+        transform 0.3s ease;
+}
+#video-container.vc-hidden { display: none; }
+
+#video-container.vc-small {
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#video-container.vc-full {
+    top: 50%;
+    left: 50%;
+    bottom: auto;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: min(900px, 94vw);
+}
+
+.vc-header {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: var(--surface-2);
+    color: white;
+    gap: 6px;
+}
+#vc-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.vc-header button {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+.vc-header button:hover { background: rgba(255, 255, 255, 0.22); }
+#vc-close { background: rgba(239, 68, 68, 0.22); }
+#vc-close:hover { background: rgba(239, 68, 68, 0.45); }
+
+#video-container video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    display: block;
+    background: black;
+    object-fit: contain;
+}
+
+/* Keep the native control bar clean — no gradients, normal brightness */
+video::-webkit-media-controls-panel {
+    background-image: none !important;
+    filter: brightness(1);
+}
+
+/* Pro-Tip Unlocked theme — Success Gold */
+#video-container.vc-success {
+    border-color: #d4af37;
+    box-shadow: 0 24px 60px rgba(212, 175, 55, 0.35);
+}
+#video-container.vc-success .vc-header {
+    background: linear-gradient(135deg, #d4af37, #b8941f);
+    color: #0b0f1a;
+}
+#video-container.vc-success .vc-header button {
+    background: rgba(0, 0, 0, 0.18);
+    color: #0b0f1a;
+}
+#video-container.vc-success .vc-header button:hover {
+    background: rgba(0, 0, 0, 0.32);
+}
+#video-container.vc-success #vc-close {
+    background: rgba(0, 0, 0, 0.28);
+}
+#video-container.vc-success #vc-close:hover {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+/* 6. RESPONSIVENESS ----------------------------------------- */
+
+/* iPad / tablet */
+@media (max-width: 900px) {
+    .view { padding: 90px 24px 48px; }
+    #shield-drawer { width: 300px; }
+    #recent-panel { width: 300px; }
+
+    /* Floating Sidekick — small, mighty bar (~2 notification tray heights) */
+    #video-container.vc-small {
+        width: 92%;
+        max-width: 92%;
+        left: 4%;
+        right: auto;
+        bottom: 10px;
+        height: 180px;
+        max-height: 180px;
+        border-radius: 12px;
+    }
+    #video-container.vc-small .vc-header {
+        height: 24px;
+        min-height: 24px;
+        padding: 0 8px;
+        gap: 4px;
+    }
+    #video-container.vc-small #vc-title {
+        font-size: 12px;
+    }
+    #video-container.vc-small .vc-header button {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+        border-radius: 5px;
+    }
+    #video-container.vc-small video {
+        flex: 1;
+        min-height: 0;
+        height: calc(180px - 24px);
+        max-height: calc(180px - 24px);
+        aspect-ratio: auto; /* container drives size on mobile */
+        object-fit: contain;
+    }
+    /* Slightly slim native control bar so the timeline + fullscreen fit */
+    #video-container.vc-small video::-webkit-media-controls-panel {
+        padding: 0 4px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    /* DEBUG + RESET → moved to bottom-left, compact, behind any tray/pill */
+    #debug-feed {
+        top: auto;
+        bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+        left: calc(15px + env(safe-area-inset-left, 0px));
+        width: 150px;
+        z-index: 50;
+        opacity: 0.85;
+    }
+    #debug-log {
+        max-height: 90px;
+        font-size: 9px;
+        padding: 6px 8px;
+        line-height: 1.35;
+    }
+    #reset-demo {
+        font-size: 9px;
+        padding: 5px 8px;
+        letter-spacing: 0.02em;
+    }
+
+    /* TOP NAV — comfortable spacing from edge */
+    .test-nav {
+        top: calc(12px + env(safe-area-inset-top, 0px));
+        right: calc(12px + env(safe-area-inset-right, 0px));
+    }
+    .test-nav button { padding: 7px 11px; font-size: 11px; }
+
+    /* VIEWPORT — push title clear of address bar, leave room for floating UI */
+    .view {
+        padding: 140px 20px 200px;
+    }
+    .view h2 { font-size: 24px; margin-top: 12px; }
+    .view p { font-size: 14px; }
+
+    /* COMPACT BOTTOM TRAY — tighter padding, slimmer button, 14px text */
+    #shield-drawer {
+        width: 280px;
+        max-width: calc(100vw - 30px);
+        right: calc(15px + env(safe-area-inset-right, 0px));
+        bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+        padding: 12px 14px 10px;
+    }
+    .drawer-content { gap: 10px; }
+    #shield-message {
+        font-size: 14px;
+        line-height: 1.35;
+        padding-right: 26px;
+    }
+    #open-shield-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 10px;
+    }
+    #drawer-close {
+        width: 22px;
+        height: 22px;
+        font-size: 14px;
+        top: 6px;
+        right: 8px;
+    }
+
+    /* SHRUNK PILL — icon + count only, never blocks form inputs */
+    #recent-tab {
+        right: calc(15px + env(safe-area-inset-right, 0px));
+        bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+        padding: 7px 10px 7px 8px;
+        gap: 6px;
+        font-size: 11px;
+    }
+    .recent-tab-label { display: none; }
+    .recent-tab-icon { width: 18px; height: 18px; font-size: 9px; }
+    .recent-tab-count {
+        padding: 1px 7px;
+        font-size: 10px;
+        min-width: 18px;
+    }
+    #recent-panel {
+        right: calc(15px + env(safe-area-inset-right, 0px));
+        bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+        width: calc(100vw - 30px);
+    }
+
+    /* PiP video small-tray sizing inherits the 35vh tray from the ≤900px block */
+    #video-container.vc-full {
+        width: 96vw;
+    }
+}
+
