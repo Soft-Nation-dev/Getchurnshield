@@ -1,0 +1,60 @@
+// Production Configuration for PayID (Silent Signup Flow)
+// Logic: Dashboard triggers Guide -> BVN/Card tasks -> Dashboard triggers Pro-Tip
+ChurnShield.init({
+  accentColor: "#00d1b2", 
+  namespace: "payid_shield",
+
+  // Webhooks wired to your Make.com logic hubs
+  webhooks: { 
+    friction: "https://hook.eu1.make.com/bva2khnjno8f43ldtjnsdj4l18c2g8f4", 
+    success:  "https://hook.eu1.make.com/m9fssewtm2yk6i2msmjb0eylt63crgkv"  
+  },
+
+  // The "Gates" that must be completed to unlock the Coach state
+  completionGates: ["#bvn-verification", "#link-card"], 
+
+  pages: {
+    // 1. THE PROFESSOR (Dashboard Main Guide)
+    // Plays if gates are not yet cleared.
+    "#dashboard": {
+      msg: "Welcome to PayID! Here is your 72-hour success roadmap.",
+      video: "https://res.cloudinary.com/dsye3fbye/video/upload/f_auto,q_auto/v1776383449/2026-04-11-124911579_hvj9ov.mp4",
+      label: "Main_Onboarding_Guide",
+      title: "The PayID Roadmap"
+    },
+
+    // 2. BVN Task (Rescue Timer)
+    "#bvn-verification": {
+      msg: "BVN not authenticating? Here is the fix.",
+      video: "https://res.cloudinary.com/dsye3fbye/video/upload/f_auto,q_auto/v1776383440/2026-04-11-131757011_rlc2ty.mp4",
+      label: "BVN_Verification_Friction",
+      title: "Identity Check"
+    },
+
+    // 3. Card Task (Rescue Timer)
+    "#link-card": {
+      msg: "Security first: Here is how to safely link your card.",
+      video: "https://res.cloudinary.com/dsye3fbye/video/upload/f_auto,q_auto/v1776383448/2026-04-11-151934848_cctymj.mp4",
+      label: "Card_Linking_Guide",
+      title: "Linking Your Bank"
+    },
+
+    // 4. THE COACH (Dashboard Pro-Tip Reward)
+    // Triggers only AFTER #bvn-verification and #link-card are completed.
+    "#dashboard-coach": {
+      msg: "Pro-Tip Unlocked — Here is your reward for finishing setup.",
+      video: "https://res.cloudinary.com/dsye3fbye/video/upload/f_auto,q_auto/v1776383447/2026-04-11-164015879_plsveg.mp4",
+      label: "Pro_Tip_Reward",
+      title: "Pro-Tip Unlocked"
+    }
+  },
+
+  timing: {
+    // Triggers on #bvn-verification or #link-card after 15s of scroll inactivity
+    taskRescue: 15000,   
+    // Triggers the Roadmap 5s after the user first hits the dashboard
+    homeProfessor: 5000, 
+    // Triggers the Pro-Tip hotspot 3s after user returns to dashboard with tasks done
+    homeCoach: 3000      
+  }
+});
