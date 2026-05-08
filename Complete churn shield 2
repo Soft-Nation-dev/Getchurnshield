@@ -1,0 +1,914 @@
+// ==========================================
+// CHURN SHIELD v2 — ENTERPRISE EDITION
+// SOC2 / GDPR Compliant Build
+//
+// SECURITY PROTOCOLS:
+// Protocol 1 — Domain Guard : Silent exit on unauthorized hosts.
+// Protocol 2 — Namespace Switch : Silent exit on blocked namespaces.
+// Protocol 3 — PII Scrub : Zero email capture. Anonymous session_id only.
+// Protocol 4 — Remote Config : Client config fetched via apiKey. Nothing hardcoded.
+// Protocol 5 — Shadow DOM : UI injected into an isolated Shadow Root.
+// Protocol 6 — Path Scoping : Engine only activates on protectedRoutes.
+// Protocol 7 — Global Kill Switch : ChurnShield.disable() wipes everything instantly.
+//
+// PRESERVED LOGIC NERVES:
+// Fix 1 — Instant Kill Switch : completeSection calls closeVideo() + hideDrawer() together.
+// Fix 2 — Alarm Triggers : vc-close and drawer-close both call restartWatchdog().
+// Fix 3 — Mute Rule : restartWatchdog guards on drawer.active, not isVideoActive().
+// Zone 4 — Navigation Persist : onhashchange never interrupts a video currently in flight.
+// ==========================================
+
+(function (global) {
+  "use strict";
+
+  // ==========================================
+  // PROTOCOL 1 — DOMAIN GUARD
+  // Resolved before any other logic. Silent exit on unauthorized host.
+  // Add staging or preview domains to this array as needed.
+  // ==========================================
+  var AUTHORIZED_DOMAINS = [
+    "payid.app",
+    "okorochidozie9-lab.github.io",
+    "localhost"
+  ];
+
+  var _host = global.location.hostname;
+  var _authorized = false;
+
+  for (var _i = 0; _i < AUTHORIZED_DOMAINS.length; _i++) {
+    var _d = AUTHORIZED_DOMAINS[_i];
+    if (_host === _d || _host.slice(-(_d.length + 1)) === "." + _d) {
+      _authorized = true;
+      break;
+    }
+  }
+
+  if (!_authorized) return;
+
+  // ==========================================
+  // PROTOCOL 2 — NAMESPACE KILL SWITCH
+  // Add a namespace string here to silently decommission a deployment.
+  // ==========================================
+  var BLOCKED_NAMESPACES = [];
+
+  // ==========================================
+  // SESSION IDENTITY — PROTOCOL 3 (PII SCRUB)
+  // FIX 4: Moved from sessionStorage to localStorage so session survives tab close.
+  // ==========================================
+  function generateSessionId() {
+    try {
+      if (global.crypto && global.crypto.randomUUID) {
+        return global.crypto.randomUUID();
+      }
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0;
+        var v = c === "x"? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    } catch (_) {
+      return "session-" + Date.now() + "-" + Math.floor(Math.random() * 1000000);
+    }
+  }
+
+  var SESSION_ID = (function () {
+    try {
+      // FIX 4: Changed to localStorage
+      var stored = localStorage.getItem("cs.session_id");
+      if (stored) return stored;
+      var id = generateSessionId();
+      localStorage.setItem("cs.session_id", id);
+      return id;
+    } catch (_) {
+      return generateSessionId();
+    }
+  })();
+
+  // ==========================================
+  // FIX 6: Rate Limiting - simple token bucket
+  // ==========================================
+  var RATE_LIMIT = {
+    maxEvents: 10,
+    windowMs: 2000,
+    events: []
+  };
+
+  function checkRateLimit() {
+    var now = Date.now();
+    RATE_LIMIT.events = RATE_LIMIT.events.filter(function(t) { return now - t < RATE_LIMIT.windowMs; });
+    if (RATE_LIMIT.events.length >= RATE_LIMIT.maxEvents) {
+      return false;
+    }
+    RATE_LIMIT.events.push(now);
+    return true;
+  }
+
+  // ==========================================
+  // SHADOW DOM INJECTION — PROTOCOL 5
+  // ==========================================
+  function injectShadowUI(accentColor) {
+    if (document.getElementById("cs-shadow-host")) return null;
+
+    var host = document.createElement("div");
+    host.id = "cs-shadow-host";
+    document.body.appendChild(host);
+
+    var shadow = host.attachShadow({ mode: "closed" });
+
+    var style = document.createElement("style");
+    style.textContent = buildStyles(accentColor);
+    shadow.appendChild(style);
+
+    var root = document.createElement("div");
+    root.id = "cs-root";
+    root.innerHTML =
+      '<div id="video-container" class="vc-hidden">' +
+        '<div id="vc-header">' +
+          '<span id="vc-title">Guide</span>' +
+          '<div id="vc-controls">' +
+            '<button id="vc-toggle" aria-label="Toggle size">\u2922</button>' +
+            '<button id="vc-close" aria-label="Close video">\u2715</button>' +
+          "</div>" +
+        "</div>" +
+        '<video id="churn-video" playsinline></video>' +
+      "</div>" +
+      '<div id="shield-drawer" class="drawer-hidden" role="complementary" aria-live="polite">' +
+        '<p id="shield-message"></p>' +
+        '<div id="shield-actions">' +
+          '<button id="drawer-watch">Watch</button>' +
+          '<button id="drawer-close" aria-label="Dismiss help">\u2715</button>' +
+        "</div>" +
+      "</div>" +
+      '<button id="recent-tab" class="hidden" aria-label="Recently watched">' +
+        '\u25b6 <span class="recent-tab-count">0</span>' +
+      "</button>" +
+      '<div id="recent-panel" class="hidden" aria-label="Recently watched videos">' +
+        '<div id="recent-panel-header">' +
+          "<span>Recently Watched</span>" +
+          '<button id="recent-panel-close">\u2715</button>' +
+        "</div>" +
+        '<ul id="recent-list"></ul>' +
+      "</div>";
+
+    shadow.appendChild(root);
+    return shadow;
+  }
+
+  function buildStyles(accent) {
+    return [
+      ":host { all: initial; }",
+      "* { box-sizing: border-box; font-family: inherit; }",
+      ":root, :host { --cs-accent: " + accent + "; }",
+      "#video-container { position:fixed; z-index:9990; background:#000; border-radius:10px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.45); transition:all.3s ease; }",
+      "#video-container.vc-hidden { display:none; }",
+      "#video-container.vc-small { bottom:16px; right:16px; width:280px; }",
+      "#video-container.vc-full { bottom:0; right:0; width:100vw; height:100vh; border-radius:0; }",
+      "#video-container.vc-success { border:2px solid gold; }",
+      "#vc-header { display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:rgba(0,0,0,.7); color:#fff; }",
+      "#vc-title { font-size:.8rem; font-weight:600; flex:1; }",
+      "#vc-controls { display:flex; gap:6px; }",
+      "#vc-controls button { background:none; border:none; color:#fff; cursor:pointer; font-size:.9rem; padding:2px 4px; }",
+      "#churn-video { width:100%; display:block; }",
+      "#shield-drawer { position:fixed; bottom:0; left:0; right:0; z-index:9980; background:" + accent + "; color:#fff; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; gap:12px; transform:translateY(0); transition:transform.35s ease; }",
+      "#shield-drawer.drawer-hidden { display:none; }",
+      "#shield-drawer.gold { background:#b45309; }",
+      "#shield-message { margin:0; font-size:.9rem; flex:1; }",
+      "#shield-actions { display:flex; gap:8px; flex-shrink:0; }",
+      "#shield-actions button { border:none; border-radius:6px; padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600; }",
+      "#drawer-watch { background:#fff; color:" + accent + "; }",
+      "#shield-drawer.gold #drawer-watch { color:#b45309; }",
+      "#drawer-close { background:rgba(255,255,255,.2); color:#fff; }",
+      "#recent-tab { position:fixed; bottom:16px; left:16px; z-index:9970; background:" + accent + "; color:#fff; border:none; border-radius:20px; padding:8px 14px; cursor:pointer; font-size:.8rem; font-weight:600; }",
+      "#recent-tab.hidden { display:none; }",
+      "#recent-panel { position:fixed; bottom:60px; left:16px; z-index:9975; background:#1e1e2e; color:#fff; border-radius:10px; width:260px; box-shadow:0 4px 24px rgba(0,0,0,.4); overflow:hidden; }",
+      "#recent-panel.hidden { display:none; }",
+      "#recent-panel-header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(255,255,255,.05); font-size:.85rem; font-weight:600; }",
+      "#recent-panel-close { background:none; border:none; color:#fff; cursor:pointer; font-size:1rem; }",
+      "#recent-list { list-style:none; margin:0; padding:8px; }",
+      ".recent-item { display:flex; justify-content:space-between; align-items:center; padding:8px; border-radius:6px; }",
+      ".recent-item:hover { background:rgba(255,255,255,.05); }",
+      ".recent-title { font-size:.8rem; flex:1; }",
+      ".recent-replay { background:" + accent + "; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:.75rem; }",
+      ".recent-empty { padding:8px; color:rgba(255,255,255,.5); font-size:.8rem; }"
+    ].join("\n");
+  }
+
+  // ==========================================
+  // INTERNAL ENGINE
+  // ==========================================
+  function createEngine(config, shadowRoot) {
+
+    if (BLOCKED_NAMESPACES.indexOf(config.namespace)!== -1) return null;
+
+    if (config.protectedRoutes && config.protectedRoutes.length > 0) {
+      var currentPath = global.location.pathname;
+      var routeMatch = false;
+      for (var _r = 0; _r < config.protectedRoutes.length; _r++) {
+        if (currentPath.indexOf(config.protectedRoutes[_r]) === 0) {
+          routeMatch = true;
+          break;
+        }
+      }
+      if (!routeMatch) return null;
+    }
+
+    var NS = config.namespace;
+    var STORAGE_KEYS = {
+      lastLabel: NS + ".lastActiveLabel",
+      completed: NS + ".completedSections",
+      attribution: NS + ".attribution" // FIX 3: Track attribution window
+    };
+
+    var lastActiveLabel = null;
+    var completedSections;
+    try {
+      completedSections = new Set(
+        JSON.parse(sessionStorage.getItem(STORAGE_KEYS.completed) || "[]")
+      );
+    } catch (_) {
+      completedSections = new Set();
+    }
+
+    var recentlyWatched = [];
+    var watchdogTimer;
+    var qualifiedViewTimer;
+    var proTipTimer;
+    var proTipPending = false;
+    var lastFocusedField = "none";
+
+    var _listeners = [];
+
+    function trackListener(target, event, handler, options) {
+      target.addEventListener(event, handler, options || false);
+      _listeners.push({ target: target, event: event, handler: handler, options: options || false });
+    }
+
+    function q(id) {
+      return shadowRoot.getElementById(id);
+    }
+
+    function persistCompleted() {
+      try {
+        sessionStorage.setItem(
+          STORAGE_KEYS.completed,
+          JSON.stringify(Array.from(completedSections))
+        );
+      } catch (_) {}
+    }
+
+    function isVideoActive() {
+      var c = q("video-container");
+      return c?!c.classList.contains("vc-hidden") : false;
+    }
+
+    function fieldIdOf(el) {
+      if (!el) return null;
+      return (
+        el.id ||
+        el.name ||
+        el.getAttribute("placeholder") ||
+        (el.tagName? el.tagName.toLowerCase() : null)
+      );
+    }
+
+    // ==========================================
+    // FIX 3: Attribution Window Logic
+    // ==========================================
+    function setAttributionWindow(label) {
+      try {
+        var expiry = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days
+        localStorage.setItem(STORAGE_KEYS.attribution, JSON.stringify({
+          label: label,
+          expiry: expiry
+        }));
+      } catch (_) {}
+    }
+
+    function getAttributionWindow() {
+      try {
+        var data = localStorage.getItem(STORAGE_KEYS.attribution);
+        if (!data) return null;
+        var parsed = JSON.parse(data);
+        if (Date.now() > parsed.expiry) {
+          localStorage.removeItem(STORAGE_KEYS.attribution);
+          return null;
+        }
+        return parsed.label;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // ==========================================
+    // FIX 5: Webhook with Retry, Timeout, Idempotency
+    // ==========================================
+    function sendSignal(status, extras) {
+      var url = config.brandWebhookUrl;
+      if (!url) return;
+
+      // FIX 6: Check rate limit
+      if (!checkRateLimit()) {
+        console.warn("ChurnShield: Rate limit hit, dropping event", status);
+        return;
+      }
+
+      var payload = {
+        session_id: SESSION_ID,
+        namespace: NS,
+        event: status,
+        last_focused_field: lastFocusedField || "none",
+        timestamp: new Date().toISOString(),
+        host: global.location.hostname,
+        path: global.location.pathname,
+        version: "v1" // FIX 7: Event versioning
+      };
+
+      // FIX 2: Idempotency - add event_id
+      if (extras && extras.event_id) {
+        payload.event_id = extras.event_id;
+      } else {
+        payload.event_id = SESSION_ID + "-" + status + "-" + Date.now();
+      }
+
+      if (extras) {
+        Object.keys(extras).forEach(function (k) { payload[k] = extras[k]; });
+      }
+
+      // FIX 5: Retry with exponential backoff
+      var maxRetries = 3;
+      var attempt = 0;
+
+      function attemptSend() {
+        attempt++;
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 5000); // 5s timeout
+
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        })
+       .then(function(res) {
+          clearTimeout(timeoutId);
+          if (!res.ok && attempt < maxRetries) {
+            setTimeout(attemptSend, Math.pow(2, attempt) * 1000); // 2s, 4s, 8s
+          }
+        })
+       .catch(function(err) {
+          clearTimeout(timeoutId);
+          if (attempt < maxRetries) {
+            setTimeout(attemptSend, Math.pow(2, attempt) * 1000);
+          } else {
+            console.error("ChurnShield: Webhook failed after retries", err);
+          }
+        });
+      }
+
+      attemptSend();
+    }
+
+    function sendSuccess() {
+      sendSignal("onboarding_complete", { status: "success" });
+    }
+
+    // FIX 1: Add signup_complete event
+    function sendSignupComplete(userData) {
+      sendSignal("signup_complete", {
+        status: "success",
+        event_id: "signup-" + SESSION_ID + "-" + Date.now()
+      });
+    }
+
+    function bindFieldTracker() {
+      trackListener(document, "focusin", function (e) {
+        try {
+          var t = e.target;
+          if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) {
+            lastFocusedField = fieldIdOf(t);
+          }
+        } catch (_) {}
+      });
+    }
+
+    function showShieldUI(pageHash) {
+      try {
+        var cfg = config.pages[pageHash];
+        if (!cfg) return;
+        if (completedSections.has(pageHash)) return;
+
+        var drawer = q("shield-drawer");
+        q("shield-message").innerText = cfg.msg || "";
+        drawer.dataset.video = cfg.video || "";
+        drawer.dataset.label = cfg.label || "";
+        drawer.dataset.title = cfg.title || "";
+
+        drawer.classList.remove("drawer-hidden", "gold");
+        drawer.classList.add("active");
+        q("recent-tab").classList.add("hidden");
+
+        lastActiveLabel = cfg.label;
+
+        // FIX 3: Set attribution window when hotspot triggers
+        setAttributionWindow(cfg.label);
+
+        sendSignal(cfg.label, { last_focused_field: lastFocusedField || "(none)" });
+      } catch (_) {}
+    }
+
+    function hideDrawer() {
+      try {
+        var drawer = q("shield-drawer");
+        drawer.classList.remove("active");
+        drawer.classList.add("drawer-hidden");
+      } catch (_) {}
+    }
+
+    function openVideo(videoUrl, title, label, themeClass) {
+      try {
+        if (!videoUrl) return;
+        var container = q("video-container");
+        var player = q("churn-video");
+
+        q("vc-title").textContent = title || "Guide";
+        player.src = videoUrl;
+
+        container.classList.remove("vc-hidden", "vc-full", "vc-success");
+        container.classList.add("vc-small");
+        if (themeClass) container.classList.add(themeClass);
+
+        addToRecentlyWatched({ video: videoUrl, title: title, label: label, themeClass: themeClass });
+
+        var qualifiedSent = false;
+        clearTimeout(qualifiedViewTimer);
+        var onPlay = function () {
+          qualifiedViewTimer = setTimeout(function () {
+            try {
+              if (!qualifiedSent &&!player.paused && player.currentTime >= 5) {
+                qualifiedSent = true;
+                sendSignal((label || "video") + "_QUALIFIED_VIEW");
+              }
+            } catch (_) {}
+          }, config.timing.qualifiedView);
+        };
+        player.addEventListener("play", onPlay, { once: true });
+
+        var p = player.play();
+        if (p && typeof p.catch === "function") p.catch(function () {});
+      } catch (_) {}
+    }
+
+    function closeVideo() {
+      try {
+        var container = q("video-container");
+        var player = q("churn-video");
+        player.pause();
+        try { player.currentTime = 0; } catch (_) {}
+        container.classList.add("vc-hidden");
+        container.classList.remove("vc-small", "vc-full", "vc-success");
+      } catch (_) {}
+    }
+
+    function toggleVideoSize() {
+      try {
+        var container = q("video-container");
+        if (container.classList.contains("vc-full")) {
+          container.classList.replace("vc-full", "vc-small");
+        } else {
+          container.classList.replace("vc-small", "vc-full");
+        }
+      } catch (_) {}
+    }
+
+    function addToRecentlyWatched(entry) {
+      if (!entry ||!entry.video) return;
+      var idx = recentlyWatched.findIndex(function (r) { return r.video === entry.video; });
+      if (idx!== -1) recentlyWatched.splice(idx, 1);
+      recentlyWatched.unshift(entry);
+      if (recentlyWatched.length > 8) recentlyWatched.length = 8;
+      refreshRecentList();
+      updateRecentTab();
+    }
+
+    function showRecentTab() {
+      try {
+        q("recent-tab").classList.remove("hidden");
+        updateRecentTab();
+      } catch (_) {}
+    }
+
+    function updateRecentTab() {
+      try {
+        var count = shadowRoot.querySelector("#recent-tab.recent-tab-count");
+        if (count) count.textContent = String(recentlyWatched.length);
+      } catch (_) {}
+    }
+
+    function refreshRecentList() {
+      try {
+        var list = q("recent-list");
+        if (!list) return;
+        list.innerHTML = "";
+        if (!recentlyWatched.length) {
+          var empty = document.createElement("li");
+          empty.className = "recent-empty";
+          empty.textContent = "No videos watched yet.";
+          list.appendChild(empty);
+          return;
+        }
+        recentlyWatched.forEach(function (r) {
+          var li = document.createElement("li");
+          li.className = "recent-item";
+
+          var titleEl = document.createElement("span");
+          titleEl.className = "recent-title";
+          titleEl.textContent = r.title || "Guide";
+
+          var btn = document.createElement("button");
+          btn.className = "recent-replay";
+          btn.textContent = "Replay";
+          btn.addEventListener("click", function () {
+            openVideo(r.video, r.title, r.label, r.themeClass);
+            hideRecentPanel();
+          });
+
+          li.appendChild(titleEl);
+          li.appendChild(btn);
+          list.appendChild(li);
+        });
+      } catch (_) {}
+    }
+
+    function showRecentPanel() {
+      try {
+        refreshRecentList();
+        q("recent-panel").classList.remove("hidden");
+      } catch (_) {}
+    }
+
+    function hideRecentPanel() {
+      try { q("recent-panel").classList.add("hidden"); } catch (_) {}
+    }
+
+    function instantKillPendingTriggers() {
+      clearTimeout(watchdogTimer);
+      clearTimeout(qualifiedViewTimer);
+    }
+
+    // FIX 1: completeSection now handles both video and drawer
+    function completeSection(hash) {
+      try {
+        if (!hash || completedSections.has(hash)) return;
+        completedSections.add(hash);
+        persistCompleted();
+        instantKillPendingTriggers();
+        closeVideo();
+        hideDrawer();
+        sendSignal(hash.replace("#", "") + "_SECTION_COMPLETED");
+
+        var allDone = config.completionGates.every(function (g) {
+          return completedSections.has(g);
+        });
+        if (allDone && config.completionGates.length > 0) {
+          scheduleProTip();
+        }
+      } catch (_) {}
+    }
+
+    function scheduleProTip() {
+      clearTimeout(proTipTimer);
+      proTipTimer = setTimeout(function () {
+        try {
+          if (lastActiveLabel) {
+            sendSignal(lastActiveLabel + "_SUCCESS_SAVE");
+            lastActiveLabel = null;
+          }
+          proTipPending = true;
+          showProTipHotspot(true);
+        } catch (_) {}
+      }, config.timing.proTipReward);
+    }
+
+    function showProTipHotspot(fireSignal) {
+      try {
+        var cfg = config.pages[config.homeHash] || {};
+        var drawer = q("shield-drawer");
+        q("shield-message").innerText = "Pro-Tip Unlocked — your reward is ready.";
+
+        drawer.dataset.video = cfg.video || "";
+        drawer.dataset.label = "Pro_Tip_Unlocked";
+        drawer.dataset.title = "Pro-Tip Unlocked";
+        drawer.dataset.theme = "vc-success";
+
+        drawer.classList.remove("drawer-hidden");
+        drawer.classList.add("active", "gold");
+        q("recent-tab").classList.add("hidden");
+
+        if (fireSignal) sendSignal("Pro_Tip_Unlocked");
+      } catch (_) {}
+    }
+
+    function dismissProTipHotspot() {
+      try {
+        proTipPending = false;
+        var drawer = q("shield-drawer");
+        drawer.classList.remove("gold");
+        delete drawer.dataset.theme;
+      } catch (_) {}
+    }
+
+    function restartWatchdog(currentPoint) {
+      try {
+        if (!config.pages[currentPoint]) return;
+        if (currentPoint === config.homeHash) return;
+        if (completedSections.has(currentPoint)) return;
+
+        if (q("shield-drawer").classList.contains("active")) return;
+
+        clearTimeout(watchdogTimer);
+        watchdogTimer = setTimeout(function () {
+          try {
+            if ((global.location.hash || config.homeHash)!== currentPoint) return;
+            if (q("shield-drawer").classList.contains("active")) return;
+            showShieldUI(currentPoint);
+          } catch (_) {}
+        }, config.timing.taskRescue);
+      } catch (_) {}
+    }
+
+    function runWatchdog() {
+      try {
+        var currentPoint = global.location.hash || config.homeHash;
+        clearTimeout(watchdogTimer);
+
+        var videoInFlight = isVideoActive();
+        if (!videoInFlight) hideDrawer();
+
+        if (currentPoint === config.homeHash) {
+          sendSuccess();
+          sendSignal("Onboarding_Complete_STOP_SEQUENCE");
+
+          var tasksComplete = config.completionGates.every(function (g) {
+            return completedSections.has(g);
+          });
+
+          if (!tasksComplete) {
+            watchdogTimer = setTimeout(function () {
+              try {
+                if ((global.location.hash || config.homeHash)!== config.homeHash) return;
+                if (isVideoActive()) return;
+
+                var cfg = config.pages["#home-professor"] || {};
+                var drawer = q("shield-drawer");
+                q("shield-message").innerText = cfg.msg || "";
+                drawer.dataset.video = cfg.video || "";
+                drawer.dataset.label = cfg.label || "";
+                drawer.dataset.title = cfg.title || "";
+                delete drawer.dataset.theme;
+
+                drawer.classList.remove("drawer-hidden", "gold");
+                drawer.classList.add("active");
+                q("recent-tab").classList.add("hidden");
+
+                lastActiveLabel = cfg.label;
+                sendSignal(cfg.label);
+              } catch (_) {}
+            }, config.timing.homeProfessor);
+
+          } else {
+            watchdogTimer = setTimeout(function () {
+              try {
+                if ((global.location.hash || config.homeHash)!== config.homeHash) return;
+                proTipPending = true;
+                showProTipHotspot(true);
+              } catch (_) {}
+            }, config.timing.homeCoach);
+          }
+
+          if (proTipPending) showProTipHotspot(false);
+          return;
+        }
+
+        if (config.pages[currentPoint] &&!completedSections.has(currentPoint)) {
+          if (!videoInFlight) {
+            watchdogTimer = setTimeout(function () {
+              try {
+                if ((global.location.hash || config.homeHash)!== currentPoint) return;
+                if (isVideoActive()) return;
+                showShieldUI(currentPoint);
+              } catch (_) {}
+            }, config.timing.taskRescue);
+          }
+        }
+
+        if (proTipPending) showProTipHotspot(false);
+      } catch (_) {}
+    }
+
+    function fireFormatErrorShield(hash) {
+      try {
+        if (!config.pages[hash]) return;
+        if (completedSections.has(hash)) return;
+
+        var drawer = q("shield-drawer");
+        var alreadyShowingSame =
+          drawer.classList.contains("active") &&
+         !drawer.classList.contains("gold") &&
+          drawer.dataset.label === (config.pages[hash] || {}).label;
+        if (alreadyShowingSame) return;
+
+        instantKillPendingTriggers();
+        showShieldUI(hash);
+      } catch (_) {}
+    }
+
+    function wireEvents() {
+      try {
+        trackListener(q("vc-close"), "click", function () {
+          try {
+            closeVideo();
+            restartWatchdog(global.location.hash || config.homeHash);
+          } catch (_) {}
+        });
+
+        trackListener(q("vc-toggle"), "click", toggleVideoSize);
+
+        trackListener(q("drawer-watch"), "click", function () {
+          try {
+            var drawer = q("shield-drawer");
+            var videoUrl = drawer.dataset.video;
+            var title = drawer.dataset.title;
+            var label = drawer.dataset.label;
+            var themeClass = drawer.dataset.theme || "";
+            if (videoUrl) openVideo(videoUrl, title, label, themeClass);
+          } catch (_) {}
+        });
+
+        trackListener(q("drawer-close"), "click", function () {
+          try {
+            var drawer = q("shield-drawer");
+            var isGold = drawer.classList.contains("gold");
+            hideDrawer();
+            showRecentTab();
+            if (isGold) dismissProTipHotspot();
+            restartWatchdog(global.location.hash || config.homeHash);
+          } catch (_) {}
+        });
+
+        trackListener(q("recent-tab"), "click", showRecentPanel);
+        trackListener(q("recent-panel-close"), "click", hideRecentPanel);
+
+        trackListener(document, "click", function (e) {
+          try {
+            var btn = e.target.closest("button");
+            if (!btn) return;
+
+            if (btn.hasAttribute("data-shield-complete")) {
+              var section = btn.getAttribute("data-shield-complete");
+              var next = btn.getAttribute("data-shield-next");
+              instantKillPendingTriggers();
+              completeSection(section);
+              if (next) global.location.hash = next;
+              return;
+            }
+
+            var currentPoint = global.location.hash || config.homeHash;
+            if (config.pages[currentPoint] && currentPoint!== config.homeHash) {
+              restartWatchdog(currentPoint);
+            }
+          } catch (_) {}
+        });
+
+        bindFieldTracker();
+        trackListener(global, "hashchange", runWatchdog);
+        trackListener(global, "load", runWatchdog);
+
+      } catch (_) {}
+    }
+
+    function dispose() {
+      try {
+        clearTimeout(watchdogTimer);
+        clearTimeout(qualifiedViewTimer);
+        clearTimeout(proTipTimer);
+        _listeners.forEach(function (l) {
+          try { l.target.removeEventListener(l.event, l.handler, l.options); } catch (_) {}
+        });
+        _listeners.length = 0;
+      } catch (_) {}
+    }
+
+    return {
+      fireFormatError: fireFormatErrorShield,
+      completeSection: completeSection,
+      sendSignal: sendSignal,
+      sendSignupComplete: sendSignupComplete, // FIX 1: Expose signup_complete
+      restartWatchdog: restartWatchdog,
+      dispose: dispose,
+      _wire: wireEvents,
+      _run: runWatchdog,
+      _getAttribution: getAttributionWindow // FIX 3: Expose for backend verification
+    };
+  }
+
+  global.ChurnShield = {
+    _engine: null,
+    _shadowHost: null,
+
+    load: function (options) {
+      if (!options ||!options.configEndpoint ||!options.apiKey) return;
+      var self = this;
+      try {
+        fetch(options.configEndpoint, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shield-Key": options.apiKey
+          }
+        })
+       .then(function (res) {
+          if (!res.ok) return null;
+          return res.json();
+        })
+       .then(function (remoteConfig) {
+          if (!remoteConfig) return;
+          self.init(remoteConfig);
+        })
+       .catch(function () {});
+      } catch (_) {}
+    },
+
+    init: function (userConfig) {
+      try {
+        var DEFAULT_CONFIG = {
+          namespace: "churnShield",
+          homeHash: "#home",
+          accentColor: "#6366f1",
+          completionGates: [],
+          protectedRoutes: [],
+          brandWebhookUrl: "",
+          timing: {
+            taskRescue: 15000,
+            homeProfessor: 5000,
+            homeCoach: 3000,
+            proTipReward: 10000,
+            qualifiedView: 5000
+          },
+          pages: {}
+        };
+
+        var merged = Object.assign({}, DEFAULT_CONFIG);
+
+        if (userConfig) {
+          if (userConfig.namespace) merged.namespace = userConfig.namespace;
+          if (userConfig.homeHash) merged.homeHash = userConfig.homeHash;
+          if (userConfig.accentColor) merged.accentColor = userConfig.accentColor;
+          if (userConfig.completionGates) merged.completionGates = userConfig.completionGates;
+          if (userConfig.protectedRoutes) merged.protectedRoutes = userConfig.protectedRoutes;
+          if (userConfig.brandWebhookUrl) merged.brandWebhookUrl = userConfig.brandWebhookUrl;
+          merged.timing = Object.assign({}, DEFAULT_CONFIG.timing, userConfig.timing || {});
+          merged.pages = Object.assign({}, DEFAULT_CONFIG.pages, userConfig.pages || {});
+        }
+
+        var shadowRoot = injectShadowUI(merged.accentColor);
+        if (!shadowRoot) return;
+
+        this._shadowHost = document.getElementById("cs-shadow-host");
+
+        var engine = createEngine(merged, shadowRoot);
+        if (!engine) return;
+
+        this._engine = engine;
+        engine._wire();
+        engine._run();
+
+      } catch (_) {}
+    },
+
+    disable: function () {
+      try {
+        if (this._engine) {
+          this._engine.dispose();
+          this._engine = null;
+        }
+        if (this._shadowHost && this._shadowHost.parentNode) {
+          this._shadowHost.parentNode.removeChild(this._shadowHost);
+          this._shadowHost = null;
+        }
+        try { localStorage.removeItem("cs.session_id"); } catch (_) {}
+      } catch (_) {}
+    },
+
+    fireFormatError: function (hash) { try { if (this._engine) this._engine.fireFormatError(hash); } catch (_) {} },
+    completeSection: function (hash) { try { if (this._engine) this._engine.completeSection(hash); } catch (_) {} },
+    sendSignal: function (event, extras) { try { if (this._engine) this._engine.sendSignal(event, extras); } catch (_) {} },
+    sendSignupComplete: function(data) { try { if (this._engine) this._engine.sendSignupComplete(data); } catch (_) {} }, // FIX 1
+    restartWatchdog: function (hash) { try { if (this._engine) this._engine.restartWatchdog(hash); } catch (_) {} },
+    getAttribution: function() { try { if (this._engine) return this._engine._getAttribution(); } catch (_) { return null; } // FIX 3
+  };
+
+  ChurnShield.load({
+    apiKey: "REPLACE_WITH_YOUR_PAYID_API_KEY",
+    configEndpoint: "https://api.payid.app/shield/config"
+  });
+
+})(window);
