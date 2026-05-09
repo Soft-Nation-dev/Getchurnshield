@@ -897,8 +897,8 @@
 
   // CHANGE THIS TO YOUR RAILWAY URL
   ChurnShield.load({
-    apiKey: "REPLACE_WITH_YOUR_PAYID_API_KEY",
-    configEndpoint: "https://your-railway-url.up.railway.app/shield/config"
-  });
+  apiKey: "payid_test",
+  configEndpoint: "https://churn-shield-engine-production.up.railway.app/shield/config"
+});
 
 })(window);
