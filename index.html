@@ -12,40 +12,38 @@
 </head>
 <body class="text-[#0F172A] antialiased selection:bg-blue-600 selection:text-white">
 
-    <header class="w-full fixed top-2 sm:top-4 z-50 flex justify-center px-2 sm:px-4">
-        <nav class="bg-[#0F172A] text-white rounded-xl md:rounded-full px-2.5 py-2 sm:px-5 sm:py-3 flex items-center justify-between w-full max-w-4xl shadow-xl border border-white/10 backdrop-blur-md gap-1.5 sm:gap-4">
+    <header class="w-full fixed top-4 z-50 flex justify-center px-4">
+        <nav class="bg-[#0F172A] text-white rounded-full px-4 py-2.5 flex items-center justify-between w-full max-w-5xl shadow-xl border border-white/10 backdrop-blur-md gap-4">
 
-            <!-- Cleaned Logo & Branding Section -->
-            <div class="flex items-center gap-2 shrink-0">
-                <div class="bg-white rounded-full px-4 py-1.5 sm:px-5 sm:py-2 flex items-center justify-center">
+            <div class="flex items-center shrink-0">
+                <div class="bg-white rounded-full px-4 py-1.5 flex items-center justify-center shrink-0">
                     <img src="logo.jpg" alt="GetChurnShield" class="h-5 sm:h-6 w-auto object-contain">
                 </div>
-                <span class="font-extrabold tracking-tight text-sm sm:text-lg text-white">GetChurnShield</span>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-6 md:gap-8 text-[9px] sm:text-xs md:text-sm font-bold tracking-wide text-gray-200 flex-nowrap">
-                <a href="#how-it-works" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">How it works</a>
-                <a href="#comparison" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Benefits</a>
-                <a href="#features" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Infrastructure</a>
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold tracking-wide text-gray-200">
+                <a href="#how-it-works" class="hover:text-white transition-colors duration-200 py-1">How it works</a>
+                <a href="#comparison" class="hover:text-white transition-colors duration-200 py-1">Benefits</a>
+                <a href="#features" class="hover:text-white transition-colors duration-200 py-1">Infrastructure</a>
             </div>
 
             <div class="shrink-0">
-                <a href="#signup-section" class="bg-white text-[#0F172A] hover:bg-gray-100 transition-all px-2 py-1 sm:px-5 sm:py-2 rounded-lg sm:rounded-full text-[9px] sm:text-xs font-bold shadow-md tracking-wide whitespace-nowrap">
+                <a href="#signup-section" class="bg-white text-[#0F172A] hover:bg-gray-100 transition-all px-5 py-2 rounded-full text-xs font-bold shadow-md tracking-wide whitespace-nowrap">
                     Secure Spot
                 </a>
             </div>
         </nav>
     </header>
 
-    <main class="pt-24 sm:pt-44 pb-24 px-4 flex flex-col items-center text-center max-w-5xl mx-auto">
+    <main class="pt-32 sm:pt-40 pb-24 px-4 flex flex-col items-center text-center max-w-5xl mx-auto">
 
         <section class="w-full flex flex-col items-center mb-28">
-            <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-4 py-1.5 text-xs font-semibold mb-6 shadow-sm">
+            <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-4 py-1.5 text-xs font-semibold mb-8 shadow-sm">
                 <img src="logo.jpg" alt="" class="h-4 w-4 object-contain">
                 <span>100% Managed Service: Code, Video & Updates Handled For You</span>
             </div>
 
-            <h1 class="text-3xl sm:text-6xl font-extrabold tracking-tight text-[#0F172A] max-w-4xl leading-[1.15] sm:leading-[1.1] mb-6">
+            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#0F172A] max-w-4xl leading-[1.15] sm:leading-[1.1] mb-6">
                 We Built GetChurnShield to Drop Your Onboarding Churn by 30%+ — Only Pay For Users Saved
             </h1>
             <p class="text-sm sm:text-xl text-gray-600 max-w-3xl font-normal leading-relaxed mb-8">
@@ -54,7 +52,7 @@
 
             <div class="mb-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-xl px-5 py-2.5 text-xs font-bold tracking-wide flex items-center gap-2 shadow-sm max-w-md w-full justify-center">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span><span id="current-month-display">May</span> Intake: Only <span id="slots-count-display">3</span> of 10 Enterprise Slots Left</span>
+                <span>May Intake: Only 3 of 10 Enterprise Slots Left</span>
             </div>
 
             <div id="signup-section" class="relative mb-16 z-10 w-full max-w-md">
@@ -108,10 +106,6 @@
                     <button type="button" class="z-20 w-12 h-12 sm:w-20 sm:h-20 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition transform cursor-pointer border-2 sm:border-4 border-white">
                         <svg class="w-4 h-4 sm:w-8 sm:h-8 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </button>
-                    <div class="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 z-20 scale-75 sm:scale-100 origin-bottom-left w-24 h-24 rounded-2xl bg-slate-800 border-2 border-white shadow-xl overflow-hidden flex flex-col items-center justify-center text-white p-2">
-                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mb-1 text-xs">🛡️</div>
-                        <span class="text-[9px] font-bold uppercase tracking-wider text-gray-300">V2 Live Demo</span>
-                    </div>
                 </div>
             </div>
         </section>
@@ -153,29 +147,6 @@
             </div>
         </section>
 
-        <section class="w-full max-w-4xl mb-28 px-2 sm:px-0">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
-                    <h3 class="font-bold text-base sm:text-lg mb-4 text-[#0F172A]">The Internal Resource Drain</h3>
-                    <ul class="space-y-3 text-xs sm:text-sm text-gray-600">
-                        <li class="flex justify-between border-b border-gray-100 pb-2"><span>Scripting & Design Flow Docs</span> <span class="font-semibold">4.5 hrs</span></li>
-                        <li class="flex justify-between border-b border-gray-100 pb-2"><span>Recording Videos & Fixing CSS</span> <span class="font-semibold">5.5 hrs</span></li>
-                        <li class="flex justify-between border-b border-gray-100 pb-2"><span>Reviewing Support Churn Tickets</span> <span class="font-semibold">5.0 hrs</span></li>
-                        <li class="flex justify-between pt-2 mt-3 font-bold">
-                            <span>Your Team's Focus</span> <span class="text-red-600">15 hrs/week stolen</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="bg-blue-600 rounded-2xl p-6 sm:p-8 text-white flex flex-col justify-center items-center text-center">
-                    <div class="text-4xl sm:text-5xl font-extrabold mb-3">&lt;10 mins</div>
-                    <p class="text-blue-100 text-xs sm:text-sm max-w-xs mt-2">
-                        GetChurnShield takes over everything. Paste our single snippet tag link, and our automated systems script, render, and track updates while you focus entirely on your core product.
-                    </p>
-                </div>
-            </div>
-        </section>
-
         <section id="features" class="w-full max-w-4xl border-t border-gray-100 pt-20 text-center px-2 sm:px-0">
             <h2 class="text-2xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-4">Complete Operational Onboarding Infrastructure.</h2>
             <p class="text-xs sm:text-base text-gray-500 max-w-2xl mx-auto mb-14">We combine a real-time behavioral watchdog snippet script with an automated, premium asset delivery pipeline.</p>
@@ -202,95 +173,40 @@
                     <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">Our system tracks activation benchmarks, links user saves directly to your platform LTV calculations, and keeps performance reporting fully transparent.</p>
                 </div>
             </div>
-
-            <div class="mt-20 p-6 sm:p-12 bg-[#0F172A] text-white rounded-3xl text-center flex flex-col items-center max-w-3xl mx-auto shadow-xl">
-                <h3 class="text-lg sm:text-2xl font-bold mb-2">Secure Your Cohort Performance Audit Slot</h3>
-                <p class="text-xs sm:text-sm text-gray-400 max-w-md mb-6">Join our prioritized intake cohort to integrate your platform telemetry tags and start stopping user drops completely risk-free.</p>
-                <a href="#signup-section" class="bg-blue-600 hover:bg-blue-700 text-white transition font-bold text-xs sm:text-sm px-5 py-3 sm:px-6 sm:py-3 rounded-xl shadow-lg">Claim Free Churn Diagnosis</a>
-            </div>
         </section>
     </main>
 
     <div id="onboarding-modal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden text-left flex flex-col">
-            
-            <div class="bg-[#0F172A] text-white p-5 sm:p-6">
+            <div class="bg-[#0F172A] text-white p-6">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-bold text-base sm:text-lg tracking-tight">Onboarding Configuration</h3>
-                    <span id="step-indicator" class="text-[10px] sm:text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">Step 1 of 2</span>
+                    <span id="step-indicator" class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">Step 1 of 2</span>
                 </div>
                 <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
                     <div id="progress-bar" class="bg-blue-500 h-full w-1/2 transition-all duration-300"></div>
                 </div>
             </div>
-
-            <div class="p-5 sm:p-6 flex-1">
-                <div id="modal-form-wrapper">
-                    <form id="onboarding-data-form" class="space-y-4">
-                        
-                        <input type="hidden" name="name" id="hidden-lead-name">
-                        <input type="hidden" name="company_url" id="hidden-lead-url">
-                        <input type="hidden" name="email" id="hidden-lead-email">
-
-                        <div id="modal-step-1" class="space-y-4">
-                            <div>
-                                <label class="block text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">1] Where are your users leaving?</label>
-                                <input type="text" name="dropoff_route" id="ob-friction-target" placeholder="e.g. /dashboard/setup" required class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm font-medium bg-gray-50">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">2] What's your current churn rate?</label>
-                                <input type="text" name="churn_rate" id="ob-churn-rate" placeholder="e.g. 12%" required class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm font-medium bg-gray-50">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Company Monthly Active Users (MAU)</label>
-                                <input type="number" name="mau" id="ob-mau" placeholder="e.g. 3000" required class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm font-medium bg-gray-50">
-                            </div>
+            <div class="p-6">
+                <form id="onboarding-data-form" class="space-y-4">
+                    <input type="hidden" id="hidden-lead-name">
+                    <input type="hidden" id="hidden-lead-url">
+                    <input type="hidden" id="hidden-lead-email">
+                    
+                    <div id="modal-step-1" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Friction Dropoff Route</label>
+                            <input type="text" id="ob-friction-target" placeholder="e.g. /dashboard/setup" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm bg-gray-50">
                         </div>
-
-                        <div id="modal-step-2" class="space-y-4 hidden">
-                            <div>
-                                <label class="block text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Choose Implementation Setup</label>
-                                <div class="grid grid-cols-1 gap-2 mt-1">
-                                    <label class="border-2 border-blue-600 bg-blue-50/40 rounded-xl p-3 flex items-start gap-3 cursor-pointer" id="label-preference-diy">
-                                        <input type="radio" name="setup_model" value="DIY Setup" class="mt-1 accent-blue-600" onclick="document.getElementById('label-preference-diy').className='border-2 border-blue-600 bg-blue-50/40 rounded-xl p-3 flex items-start gap-3 cursor-pointer'; document.getElementById('label-preference-dfy').className='border border-gray-200 rounded-xl p-3 flex items-start gap-3 cursor-pointer';">
-                                        <div>
-                                            <p class="text-xs font-bold text-[#0F172A]">DIY Setup Model</p>
-                                            <p class="text-[11px] text-gray-500">You will record and upload your own custom video assets completely by yourself.</p>
-                                        </div>
-                                    </label>
-                                    <label class="border border-gray-200 rounded-xl p-3 flex items-start gap-3 cursor-pointer" id="label-preference-dfy">
-                                        <input type="radio" name="setup_model" value="DFY Premium" checked class="mt-1 accent-blue-600" onclick="document.getElementById('label-preference-dfy').className='border-2 border-blue-600 bg-blue-50/40 rounded-xl p-3 flex items-start gap-3 cursor-pointer'; document.getElementById('label-preference-diy').className='border border-gray-200 rounded-xl p-3 flex items-start gap-3 cursor-pointer';">
-                                        <div>
-                                            <p class="text-xs font-bold text-[#0F172A]">DFY Premium Strategy Core (Recommended)</p>
-                                            <p class="text-[11px] text-gray-500">Have our automated systems script, record, fully deploy, and continuously update your video hotspots for you.</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Current Estimated Churn Rate</label>
+                            <input type="text" id="ob-churn-rate" placeholder="e.g. 12%" required class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm bg-gray-50">
                         </div>
-
-                        <div class="pt-4 border-t border-gray-100 flex justify-end gap-2">
-                            <button type="button" id="modal-back-btn" class="hidden border border-gray-300 hover:bg-gray-50 transition text-gray-700 font-bold text-xs px-5 py-2.5 sm:py-3 rounded-xl">Back</button>
-                            <button type="button" id="modal-next-btn" class="bg-blue-600 hover:bg-blue-700 transition text-white font-bold text-xs px-5 py-2.5 sm:py-3 rounded-xl shadow-md">Continue</button>
-                            <button type="submit" id="modal-submit-btn" class="hidden bg-emerald-600 hover:bg-emerald-700 transition text-white font-bold text-xs px-5 py-2.5 sm:py-3 rounded-xl shadow-md">Complete Registration</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="calendar-modal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full h-[85vh] shadow-2xl border border-gray-100 overflow-hidden flex flex-col text-left">
-            <div class="bg-emerald-600 text-white p-4 flex justify-between items-center shadow-md">
-                <div>
-                    <h3 class="font-bold text-xs sm:text-sm">🔥 Sync Slot Provisionally Allocated</h3>
-                    <p class="text-[10px] sm:text-[11px] text-emerald-100">Schedule your setup meeting to receive your unique system tag snippet.</p>
-                </div>
-                <button onclick="window.location.reload();" class="text-xs font-bold bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg transition">Close</button>
-            </div>
-            <div class="flex-1 bg-gray-50 relative">
-                <iframe src="https://calendly.com/getchurnshield/30min" class="w-full h-full border-none" allow="camera; microphone; autoplay; encrypted-media;"></iframe>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100 flex justify-end">
+                        <button type="button" id="modal-next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md">Continue Setup</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -300,103 +216,17 @@
     </footer>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfdt8Q6UW1wV6wXReXE-g8z6fmqLsYg_psEzgeh8HLYWrBSc22mm_UlAu0PgW1nRgagA/exec";
-
-        const slotsCounter = document.getElementById("slots-count-display");
-        const monthCounter = document.getElementById("current-month-display");
         const signupForm = document.getElementById("funnel-signup-form");
-        const onboardingForm = document.getElementById("onboarding-data-form");
         const onboardingModal = document.getElementById("onboarding-modal");
-        const calendarModal = document.getElementById("calendar-modal");
-        const modalFormWrapper = document.getElementById("modal-form-wrapper");
-
-        const step1Container = document.getElementById("modal-step-1");
-        const step2Container = document.getElementById("modal-step-2");
-        const stepIndicator = document.getElementById("step-indicator");
-        const progressBar = document.getElementById("progress-bar");
-        const backBtn = document.getElementById("modal-back-btn");
-        const nextBtn = document.getElementById("modal-next-btn");
-        const submitBtn = document.getElementById("modal-submit-btn");
-
-        const monthsArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
-        const systemDateInstance = new Date(2026, 4, 25, 16, 56); 
-        const activeMonthName = monthsArray[systemDateInstance.getMonth()];
-        const storageYearMonthKey = `shield_slots_${systemDateInstance.getFullYear()}_${systemDateInstance.getMonth()}`;
-        
-        monthCounter.textContent = activeMonthName;
-
-        let activeRemainingSlots = localStorage.getItem(storageYearMonthKey);
-        if (activeRemainingSlots === null) {
-            activeRemainingSlots = "3";
-            localStorage.setItem(storageYearMonthKey, activeRemainingSlots);
-        }
-        slotsCounter.textContent = activeRemainingSlots;
 
         signupForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const btn = document.getElementById("signup-btn");
-            btn.disabled = true;
-            btn.textContent = "Processing...";
-
             document.getElementById("hidden-lead-name").value = document.getElementById("signup-name").value;
             document.getElementById("hidden-lead-url").value = document.getElementById("signup-url").value;
             document.getElementById("hidden-lead-email").value = document.getElementById("signup-email").value;
-
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = "Claim Cohort Spot";
-                onboardingModal.classList.remove("hidden");
-            }, 600);
-        });
-
-        nextBtn.addEventListener("click", () => {
-            if (!document.getElementById("ob-friction-target").value || !document.getElementById("ob-churn-rate").value || !document.getElementById("ob-mau").value) {
-                alert("Please fill out all visible configuration fields.");
-                return;
-            }
-            step1Container.classList.add("hidden");
-            step2Container.classList.remove("hidden");
-            backBtn.classList.remove("hidden");
-            nextBtn.classList.add("hidden");
-            submitBtn.classList.remove("hidden");
-            
-            stepIndicator.textContent = "Step 2 of 2";
-            progressBar.style.width = "100%";
-        });
-
-        backBtn.addEventListener("click", () => {
-            step1Container.classList.remove("hidden");
-            step2Container.classList.add("hidden");
-            backBtn.classList.add("hidden");
-            nextBtn.classList.remove("hidden");
-            submitBtn.classList.add("hidden");
-            
-            stepIndicator.textContent = "Step 1 of 2";
-            progressBar.style.width = "50%";
-        });
-
-        onboardingForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            
-            const formPayloadData = new FormData(onboardingForm);
-
-            modalFormWrapper.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-8 text-center">
-                    <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <h4 class="text-sm font-bold text-[#0F172A] mb-1">Analyzing Conversion Integrity</h4>
-                    <div class="w-full max-w-xs bg-gray-100 rounded-lg p-3 font-mono text-[10px] text-gray-500 space-y-1 text-left h-24 overflow-hidden">
-                        <p id="log-1" class="hidden text-emerald-600">✓ Initializing secure data tunnel...</p>
-                        <p id="log-2" class="hidden text-emerald-600">✓ Syncing parameters to secure sheet infrastructure...</p>
-                        <p id="log-3" class="hidden text-blue-600 animate-pulse">⚡ Allocating enterprise cohort slot reserves...</p>
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                document.getElementById("log-1").classList.remove("hidden");
-            }, 400);
+            onboardingModal.classList.remove("hidden");
         });
     </script>
 </body>
 </html>
+        
