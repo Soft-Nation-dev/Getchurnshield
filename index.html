@@ -15,16 +15,13 @@
     <header class="w-full fixed top-2 sm:top-4 z-50 flex justify-center px-2 sm:px-4">
         <nav class="bg-[#0F172A] text-white rounded-xl md:rounded-full px-2.5 py-2 sm:px-5 sm:py-3 flex items-center justify-between w-full max-w-4xl shadow-xl border border-white/10 backdrop-blur-md gap-1.5 sm:gap-4">
 
-    <!-- Final Flawless Pill Logo Navigation Section -->
-<div class="flex items-center shrink-0">
-    <div class="bg-white rounded-full px-4 py-1.5 sm:px-5 sm:py-2 flex items-center justify-center">
-        <img src="logo.jpg" alt="GetChurnShield" class="h-5 sm:h-6 w-auto object-contain">
-    </div>
-</div>
-</div>
-</div>
-    <span class="font-extrabold tracking-tight text-sm sm:text-lg text-white">GetChurnShield</span>
-</div>
+            <!-- Cleaned Logo & Branding Section -->
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="bg-white rounded-full px-4 py-1.5 sm:px-5 sm:py-2 flex items-center justify-center">
+                    <img src="logo.jpg" alt="GetChurnShield" class="h-5 sm:h-6 w-auto object-contain">
+                </div>
+                <span class="font-extrabold tracking-tight text-sm sm:text-lg text-white">GetChurnShield</span>
+            </div>
 
             <div class="flex items-center gap-2 sm:gap-6 md:gap-8 text-[9px] sm:text-xs md:text-sm font-bold tracking-wide text-gray-200 flex-nowrap">
                 <a href="#how-it-works" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">How it works</a>
@@ -206,7 +203,7 @@
                 </div>
             </div>
 
-            <div class="mt-20 p-6 sm:p-12 bg-[#0F172A] text-white rounded-3xl text-center flex flex-col items-center max-w-3xl mx-auto shadow-xl mx-2 sm:mx-auto">
+            <div class="mt-20 p-6 sm:p-12 bg-[#0F172A] text-white rounded-3xl text-center flex flex-col items-center max-w-3xl mx-auto shadow-xl">
                 <h3 class="text-lg sm:text-2xl font-bold mb-2">Secure Your Cohort Performance Audit Slot</h3>
                 <p class="text-xs sm:text-sm text-gray-400 max-w-md mb-6">Join our prioritized intake cohort to integrate your platform telemetry tags and start stopping user drops completely risk-free.</p>
                 <a href="#signup-section" class="bg-blue-600 hover:bg-blue-700 text-white transition font-bold text-xs sm:text-sm px-5 py-3 sm:px-6 sm:py-3 rounded-xl shadow-lg">Claim Free Churn Diagnosis</a>
@@ -396,38 +393,9 @@
                 </div>
             `;
 
-            setTimeout(() => document.getElementById("log-1").classList.remove("hidden"), 400);
-            setTimeout(() => document.getElementById("log-2").classList.remove("hidden"), 1000);
-            setTimeout(() => document.getElementById("log-3").classList.remove("hidden"), 1600);
-
-            const urlEncodedPayload = new URLSearchParams();
-            for (const pair of formPayloadData.entries()) {
-                urlEncodedPayload.append(pair[0], pair[1]);
-            }
-
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    body: urlEncodedPayload,
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    }
-                });
-                
-                let liveCount = parseInt(localStorage.getItem(storageYearMonthKey), 10) || 3;
-                if (liveCount > 1) {
-                    liveCount -= 1;
-                    localStorage.setItem(storageYearMonthKey, liveCount.toString());
-                    slotsCounter.textContent = liveCount.toString();
-                }
-
-                onboardingModal.classList.add("hidden");
-                calendarModal.classList.remove("hidden");
-
-            } catch (err) {
-                onboardingModal.classList.add("hidden");
-                calendarModal.classList.remove("hidden");
-            }
+            setTimeout(() => {
+                document.getElementById("log-1").classList.remove("hidden");
+            }, 400);
         });
     </script>
 </body>
