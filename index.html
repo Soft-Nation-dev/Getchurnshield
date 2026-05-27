@@ -191,7 +191,7 @@
 
     <!-- Multi-Step Smart Qualification Onboarding Modal -->
     <div id="onboarding-modal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden text-left flex flex-col">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden text-left flex flex-col transition-all duration-300" id="modal-panel-wrapper">
 
             <!-- Modal Header Context Status Bar -->
             <div class="bg-[#0F172A] text-white p-6">
@@ -212,8 +212,8 @@
             </div>
 
             <!-- Form Content Injection Zone -->
-            <div class="p-6">
-                <form id="onboarding-data-form" class="space-y-4">
+            <div class="p-6 flex-1 flex flex-col">
+                <form id="onboarding-data-form" class="space-y-4 flex-1 flex flex-col justify-between">
                     <!-- Hidden Lead Sync Fields -->
                     <input type="hidden" id="hidden-lead-name">
                     <input type="hidden" id="hidden-lead-url">
@@ -268,15 +268,15 @@
                         </div>
                     </div>
 
-                    <!-- Step 2 Layout Layer: Async Simulated Chatbot Engine -->
-                    <div id="modal-step-2" class="space-y-3 hidden">
-                        <div class="text-center pb-1">
+                    <!-- Step 2 Layout Layer: Async Simulated Chatbot Engine (Stretched to fill space) -->
+                    <div id="modal-step-2" class="space-y-3 hidden flex-1 flex flex-col">
+                        <div class="text-center pb-1 shrink-0">
                             <p class="text-sm font-bold text-emerald-600">⚡ Profile Approved — Engine Allocation Success</p>
                             <p class="text-xs text-gray-500">Your custom asynchronous tracking config pack is compiling below.</p>
                         </div>
 
                         <!-- Dynamic Personalized Founder Message Container -->
-                        <div id="founder-note-card" class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 text-xs text-slate-800 font-medium leading-relaxed shadow-sm hidden">
+                        <div id="founder-note-card" class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 text-xs text-slate-800 font-medium leading-relaxed shadow-sm hidden shrink-0">
                             <div class="flex items-center gap-2 mb-2">
                                 <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold font-mono">GS</div>
                                 <span class="font-bold text-slate-900">High-Touch Implementation Routing</span>
@@ -284,8 +284,8 @@
                             <p id="founder-custom-text">Hey Founder, noticed your production metrics. Let's map out a structural plan to eliminate that system bottleneck completely during our onboarding sync call.</p>
                         </div>
 
-                        <!-- Simulated Crisp Live Chatbot Widget Interface Container -->
-                        <div class="w-full bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden flex flex-col h-[320px] shadow-inner font-sans">
+                        <!-- Simulated Crisp Live Chatbot Widget Interface Container (Expanded to fill vertical height viewport cleanly) -->
+                        <div class="w-full bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden flex flex-col h-[65vh] sm:h-[60vh] min-h-[380px] shadow-inner font-sans flex-1">
                             <!-- Bot Header Custom Element -->
                             <div class="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-gray-800 shrink-0">
                                 <div class="flex items-center gap-2.5">
@@ -325,7 +325,7 @@
                     </div>
 
                     <!-- Form Trigger Element Area -->
-                    <div id="modal-actions" class="pt-4 border-t border-gray-100 flex justify-end">
+                    <div id="modal-actions" class="pt-4 border-t border-gray-100 flex justify-end shrink-0">
                         <button type="button" id="modal-next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition">Continue Setup</button>
                     </div>
                 </form>
@@ -341,6 +341,7 @@
     <script>
         const signupForm = document.getElementById("funnel-signup-form");
         const onboardingModal = document.getElementById("onboarding-modal");
+        const modalPanelWrapper = document.getElementById("modal-panel-wrapper");
         const step1Container = document.getElementById("modal-step-1");
         const step2Container = document.getElementById("modal-step-2");
         const waitlistContainer = document.getElementById("modal-waitlist");
@@ -437,6 +438,10 @@
             cacheCurrentState();
             updateModalSetupScore();
             headerSocialProof.textContent = "🔥 127 sites like yours installed GetChurnShield this week.";
+
+            // Reset modal layout size limits to default baseline step
+            modalPanelWrapper.classList.remove("max-w-2xl", "h-[90vh]");
+            modalPanelWrapper.classList.add("max-w-lg");
 
             onboardingModal.classList.remove("hidden");
         });
@@ -581,6 +586,7 @@
             
             chatbotSendBtn.disabled = true;
             chatbotSendBtn.classList.add("bg-gray-200", "text-gray-400", "cursor-not-allowed");
+            chatbotSendBtn.classList.add("bg-gray-200", "text-gray-400", "cursor-not-allowed");
             chatbotSendBtn.classList.remove("bg-blue-600", "text-white", "cursor-pointer");
 
             renderBotMessage(userInput, true);
@@ -659,7 +665,10 @@
                 progressScoreText.classList.replace("text-blue-400", "text-amber-400");
                 headerSocialProof.textContent = "⚠️ Enterprise optimization limits reached for lower-tier profiles.";
             } else {
-                // High Qualification Pipeline Routing Execution
+                // High Qualification Pipeline Routing Execution — Transform layout frame dimensions to full immersive screen space
+                modalPanelWrapper.classList.remove("max-w-lg");
+                modalPanelWrapper.classList.add("max-w-2xl", "h-[90vh]");
+
                 step1Container.classList.add("hidden");
                 step2Container.classList.remove("hidden");
                 
@@ -679,3 +688,5 @@
     </script>
 </body>
 </html>
+
+           
