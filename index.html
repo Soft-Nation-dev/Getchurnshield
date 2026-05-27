@@ -268,25 +268,49 @@
                         </div>
                     </div>
 
-                    <!-- Step 2 Layout Layer: Premium 20-min Timeboxed Calendly Screen -->
+                    <!-- Step 2 Layout Layer: Async Simulated Chatbot Engine -->
                     <div id="modal-step-2" class="space-y-3 hidden">
                         <div class="text-center pb-1">
-                            <p class="text-sm font-bold text-emerald-600">⚡ Profile Approved — High Priority Routing Slot Allocated</p>
-                            <p class="text-xs text-gray-500">Pick an available 20-minute slot below to sync layout configuration parameters.</p>
+                            <p class="text-sm font-bold text-emerald-600">⚡ Profile Approved — Engine Allocation Success</p>
+                            <p class="text-xs text-gray-500">Your custom asynchronous tracking config pack is compiling below.</p>
                         </div>
 
                         <!-- Dynamic Personalized Founder Message Container -->
-                        <div id="founder-note-card" class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 text-xs text-slate-800 font-medium leading-relaxed shadow-sm">
+                        <div id="founder-note-card" class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 text-xs text-slate-800 font-medium leading-relaxed shadow-sm hidden">
                             <div class="flex items-center gap-2 mb-2">
                                 <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold font-mono">GS</div>
-                                <span class="font-bold text-slate-900">Message from GetChurnShield Operations</span>
+                                <span class="font-bold text-slate-900">High-Touch Implementation Routing</span>
                             </div>
                             <p id="founder-custom-text">Hey Founder, noticed your production metrics. Let's map out a structural plan to eliminate that system bottleneck completely during our onboarding sync call.</p>
                         </div>
 
-                        <div class="w-full h-[280px] bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
-                            <!-- Calendly Sandbox Interface -->
-                            <iframe src="https://calendly.com/getchurnshield/20min" class="w-full h-full border-none" allow="camera; microphone; autoplay;"></iframe>
+                        <!-- Simulated Crisp Live Chatbot Widget Interface Container -->
+                        <div class="w-full bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden flex flex-col h-[320px] shadow-inner font-sans">
+                            <!-- Bot Header Custom Element -->
+                            <div class="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-gray-800 shrink-0">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="relative">
+                                        <div class="w-7 h-7 bg-blue-600 text-[10px] text-white font-black rounded-full flex items-center justify-center shadow-md">CS</div>
+                                        <span class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-slate-900 rounded-full animate-pulse"></span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-white tracking-tight">ChurnShield Setup Assistant</span>
+                                        <span class="text-[9px] text-emerald-400 font-semibold tracking-wide">Automated Onboarding Operator</span>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-gray-400 font-mono tracking-wider uppercase bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">Async Flow</div>
+                            </div>
+
+                            <!-- Bot Logs Dynamic Stream Output Frame -->
+                            <div id="chatbot-stream" class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col text-xs leading-relaxed">
+                                <!-- Stream updates populated dynamic logic scripts sequentially -->
+                            </div>
+
+                            <!-- Bot Inputs Field Layer Component -->
+                            <div id="chatbot-input-area" class="p-2.5 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0">
+                                <input type="text" id="chatbot-text-input" disabled placeholder="Select option or response prompts..." class="flex-1 px-3 py-2 text-xs border border-gray-200 bg-gray-50 text-gray-400 font-medium rounded-xl focus:outline-none">
+                                <button type="button" id="chatbot-send-btn" disabled class="bg-gray-200 text-gray-400 px-3 py-2 rounded-xl text-xs font-bold tracking-tight transition cursor-not-allowed">Send</button>
+                            </div>
                         </div>
                     </div>
 
@@ -336,6 +360,12 @@
         const churnSelect = document.getElementById("ob-churn");
         const headacheInput = document.getElementById("ob-headache");
 
+        // Chatbot Interface Selectors
+        const chatbotStream = document.getElementById("chatbot-stream");
+        const chatbotTextInput = document.getElementById("chatbot-text-input");
+        const chatbotSendBtn = document.getElementById("chatbot-send-btn");
+        const founderNoteCard = document.getElementById("founder-note-card");
+
         // Synchronize state entries with LocalStorage Cache Data
         function cacheCurrentState() {
             const videoStrategy = document.querySelector('input[name="video-strategy"]:checked')?.value || 'diy';
@@ -383,6 +413,21 @@
         // Initialize state loading sequence execution
         window.addEventListener("DOMContentLoaded", loadCachedState);
 
+        // Update Score Engine Based on Input Progress UI States
+        function getBaseSetupScore() {
+            let score = 35;
+            if (mrrSelect.value) score += 15;
+            if (churnSelect.value) score += 15;
+            if (headacheInput.value.trim().length > 0) score += 15;
+            return score;
+        }
+
+        function updateModalSetupScore(explicitScore = null) {
+            const currentScore = explicitScore !== null ? explicitScore : getBaseSetupScore();
+            progressBar.style.width = currentScore + "%";
+            progressScoreText.textContent = currentScore + "% Complete";
+        }
+
         signupForm.addEventListener("submit", (e) => {
             e.preventDefault();
             document.getElementById("hidden-lead-name").value = document.getElementById("signup-name").value;
@@ -390,20 +435,208 @@
             document.getElementById("hidden-lead-email").value = document.getElementById("signup-email").value;
             
             cacheCurrentState();
-
-            // Set Step 1 Progress Status State metrics
-            progressBar.style.width = "35%";
-            progressScoreText.textContent = "35% Complete";
-            headerSocialProof.textContent = "⚡ 14 active software operators joined the pipeline today";
+            updateModalSetupScore();
+            headerSocialProof.textContent = "🔥 127 sites like yours installed GetChurnShield this week.";
 
             onboardingModal.classList.remove("hidden");
+        });
+
+        // Clean Close Sequence Action Triggers
+        waitlistClearBtn.addEventListener("click", () => {
+            onboardingModal.classList.add("hidden");
+            signupForm.reset();
+            localStorage.removeItem("gcs_funnel_state");
+            setTimeout(() => { location.reload(); }, 150);
+        });
+
+        // Chatbot Interface Script Simulation Pipeline
+        let currentBotStep = 0;
+        let chatbotBlockerTarget = "";
+
+        function renderBotMessage(text, isUser = false) {
+            const wrapper = document.createElement("div");
+            wrapper.className = isUser ? "flex justify-end" : "flex justify-start animate-fade-in";
+            
+            const bubble = document.createElement("div");
+            bubble.className = isUser 
+                ? "bg-blue-600 text-white px-3.5 py-2.5 rounded-2xl rounded-tr-none max-w-[85%] font-medium shadow-sm" 
+                : "bg-white border border-gray-200 text-slate-800 px-3.5 py-2.5 rounded-2xl rounded-tl-none max-w-[85%] font-medium shadow-sm";
+            
+            bubble.innerHTML = text;
+            wrapper.appendChild(bubble);
+            chatbotStream.appendChild(wrapper);
+            chatbotStream.scrollTop = chatbotStream.scrollHeight;
+        }
+
+        function renderBotTypingIndicator() {
+            const indicator = document.createElement("div");
+            indicator.id = "bot-typing-indicator";
+            indicator.className = "flex justify-start";
+            indicator.innerHTML = `
+                <div class="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1 shadow-sm">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                </div>
+            `;
+            chatbotStream.appendChild(indicator);
+            chatbotStream.scrollTop = chatbotStream.scrollHeight;
+        }
+
+        function removeBotTypingIndicator() {
+            const indicator = document.getElementById("bot-typing-indicator");
+            if (indicator) indicator.remove();
+        }
+
+        function runChatbotAutomationPipeline() {
+            const userName = document.getElementById("hidden-lead-name").value || "there";
+            const appUrl = document.getElementById("hidden-lead-url").value || "your app";
+            const currentHeadache = headacheInput.value || "onboarding dropoffs";
+            const strategyChoice = document.querySelector('input[name="video-strategy"]:checked').value;
+
+            // Clear container and state mapping
+            chatbotStream.innerHTML = "";
+            currentBotStep = 1;
+
+            renderBotTypingIndicator();
+
+            setTimeout(() => {
+                removeBotTypingIndicator();
+                renderBotMessage(`👋 Hey ${userName}! Let's configure your <strong>GetChurnShield Automation Pack</strong> instantly for <code>${appUrl}</code>.`);
+                
+                setTimeout(() => {
+                    renderBotTypingIndicator();
+                    setTimeout(() => {
+                        removeBotTypingIndicator();
+                        
+                        // Adapt query context to whether they chose DIY or DFY Strategy early
+                        let goalText = strategyChoice === "dfy" 
+                            ? `Confirming your strategy selection: You requested our full production crew wrapper. Is your primary target goal to have us build everything asynchronously out-of-the-box?`
+                            : `Confirming your strategy selection: You selected our self-serve DIY configuration layer. Is your main goal to unlock tracking code setups instantly?`;
+                        
+                        renderBotMessage(goalText);
+                        renderBotOptions(["Yes, exactly", "I need to review details"]);
+                    }, 1000);
+                }, 800);
+            }, 600);
+        }
+
+        function renderBotOptions(options) {
+            const optionsWrapper = document.createElement("div");
+            optionsWrapper.id = "bot-options-container";
+            optionsWrapper.className = "flex flex-col gap-1.5 pt-1 items-start";
+            
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold px-3.5 py-2 rounded-xl transition duration-200 text-left";
+                btn.textContent = opt;
+                btn.addEventListener("click", () => handleBotOptionSelection(opt));
+                optionsWrapper.appendChild(btn);
+            });
+            
+            chatbotStream.appendChild(optionsWrapper);
+            chatbotStream.scrollTop = chatbotStream.scrollHeight;
+        }
+
+        function handleBotOptionSelection(value) {
+            const optionsContainer = document.getElementById("bot-options-container");
+            if (optionsContainer) optionsContainer.remove();
+
+            renderBotMessage(value, true);
+            renderBotTypingIndicator();
+
+            setTimeout(() => {
+                removeBotTypingIndicator();
+                
+                if (currentBotStep === 1) {
+                    updateModalSetupScore(80);
+                    currentBotStep = 2;
+                    renderBotMessage(`Got it. Next parameter: You cited your current main operational bottleneck as: <em>"${headacheInput.value}"</em>.<br/><br/>To route custom elements, what is the single biggest mechanical blocker keeping users from solving this layout step?`);
+                    
+                    // Activate manual user inputs fields surgically for open textual input loop
+                    chatbotTextInput.disabled = false;
+                    chatbotTextInput.placeholder = "Type your blocker reason here...";
+                    chatbotTextInput.classList.remove("bg-gray-50", "text-gray-400");
+                    chatbotTextInput.classList.add("bg-white", "text-slate-800");
+                    chatbotTextInput.focus();
+                    
+                    chatbotSendBtn.disabled = false;
+                    chatbotSendBtn.classList.remove("bg-gray-200", "text-gray-400", "cursor-not-allowed");
+                    chatbotSendBtn.classList.add("bg-blue-600", "text-white", "cursor-pointer");
+                }
+            }, 1000);
+        }
+
+        // Human Intercept Trigger Handler Action
+        function executeChatbotTextSubmit() {
+            const userInput = chatbotTextInput.value.trim();
+            if (!userInput) return;
+
+            chatbotTextInput.value = "";
+            // Lock fields right down again to finalize loop processing
+            chatbotTextInput.disabled = true;
+            chatbotTextInput.placeholder = "Processing tracking config...";
+            chatbotTextInput.classList.add("bg-gray-50", "text-gray-400");
+            
+            chatbotSendBtn.disabled = true;
+            chatbotSendBtn.classList.add("bg-gray-200", "text-gray-400", "cursor-not-allowed");
+            chatbotSendBtn.classList.remove("bg-blue-600", "text-white", "cursor-pointer");
+
+            renderBotMessage(userInput, true);
+            renderBotTypingIndicator();
+
+            // Check if user is typing human panic escalation signals directly
+            const lowerInput = userInput.toLowerCase();
+            const triggerEscalation = lowerInput.includes("error") || lowerInput.includes("stuck");
+
+            setTimeout(() => {
+                removeBotTypingIndicator();
+                
+                if (triggerEscalation) {
+                    // Item 5: Crisp Human Escalation Trigger Node Hand-off Simulation
+                    updateModalSetupScore(95);
+                    stepIndicator.textContent = "Handoff Active";
+                    stepIndicator.classList.replace("text-blue-400", "text-amber-400");
+                    headerSocialProof.textContent = "⚠️ Disruption pattern flagged. Handing session off to support representative inside Crisp.";
+                    renderBotMessage(`🚨 <strong>System Notification:</strong> Blocker flag registered. I am immediately alerting our support person inside Crisp chat to intercept this run and assist you directly.`);
+                } else {
+                    // Standard Pipeline Complete Out Sequence Run
+                    updateModalSetupScore(100);
+                    stepIndicator.textContent = "Compiled";
+                    stepIndicator.classList.replace("text-blue-400", "text-emerald-400");
+                    headerSocialProof.textContent = "✓ Config parameters unified. Delivery scheduled via automation pipeline.";
+                    
+                    renderBotMessage(`🎉 <strong>Parameter lock match complete!</strong> Your automated integration assets package has been successfully structured and queued.<br/><br/>📬 Check your business email in 10 minutes for your specialized setup code pack containing tracking script nodes and layout sandbox assets.`);
+                }
+                
+                // Show final close action triggers inside action zone smoothly
+                modalActions.classList.remove("hidden");
+                nextBtn.textContent = "Finish Configuration";
+                nextBtn.classList.replace("bg-blue-600", "bg-slate-900");
+                
+                // Final close button re-wiring
+                nextBtn.onclick = function() {
+                    onboardingModal.classList.add("hidden");
+                    signupForm.reset();
+                    localStorage.removeItem("gcs_funnel_state");
+                    setTimeout(() => { location.reload(); }, 150);
+                };
+            }, 1200);
+        }
+
+        chatbotSendBtn.addEventListener("click", executeChatbotTextSubmit);
+        chatbotTextInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                executeChatbotTextSubmit();
+            }
         });
 
         nextBtn.addEventListener("click", () => {
             const mrrValue = mrrSelect.value;
             const churnValue = churnSelect.value;
             const headacheValue = headacheInput.value;
-            const selectedStrategy = document.querySelector('input[name="video-strategy"]:checked').value;
 
             if (!mrrValue || !churnValue || !headacheValue) {
                 alert("Please complete the required metric selections.");
@@ -429,29 +662,19 @@
                 // High Qualification Pipeline Routing Execution
                 step1Container.classList.add("hidden");
                 step2Container.classList.remove("hidden");
+                
+                // Hide actions bar temporarily while chatbot runs automation options
                 modalActions.classList.add("hidden");
+                
                 stepIndicator.textContent = "Step 2 of 2";
-                
-                progressBar.style.width = "100%";
-                progressScoreText.textContent = "95% Complete";
-                headerSocialProof.textContent = "🔥 Guaranteed Booking Slot Active — Only 2 priority allocations remaining.";
+                updateModalSetupScore(55);
 
-                // Generate specific personalized message variant copy parameters
-                let contextNote = "";
-                if (selectedStrategy === "dfy") {
-                    contextNote = `Hey Founder, noticed you preferred the <strong>DFY Video Wrapper execution model</strong> to target your <strong>${headacheValue}</strong> dropoff. Our production crew will outline a specialized micro-video scripting roadmap specifically for this loop before our meeting begins.`;
-                } else {
-                    contextNote = `Hey Founder, since you are looking to deploy your own assets via our <strong>DIY workflow engine</strong> to resolve your <strong>${headacheValue}</strong> friction path, we will prepare custom modular framework blueprints to help your design team hit the ground running during our call.`;
-                }
+                // Item 9: Founder Note logic activation wrapper only triggered for high targets
+                founderNoteCard.classList.remove("hidden");
                 
-                founderText.innerHTML = contextNote;
+                // Trigger dynamic live chat simulation execution
+                runChatbotAutomationPipeline();
             }
-        });
-
-        // Safe Waitlist Reset Event Trigger Listener
-        waitlistClearBtn.addEventListener("click", () => {
-            localStorage.removeItem("gcs_funnel_state");
-            window.location.reload();
         });
     </script>
 </body>
