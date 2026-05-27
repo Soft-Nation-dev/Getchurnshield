@@ -13,14 +13,30 @@
 <body class="text-[#0F172A] antialiased selection:bg-blue-600 selection:text-white">
 
     <!-- Fixed Header with Optimized Mobile Responsiveness to Prevent Overcrowding -->
-    <header class="w-full fixed top-4 z-50 flex justify-center px-4">
-        <nav class="bg-[#0F172A] text-white rounded-full px-3 sm:px-4 py-2 flex sm:py-2.5 items-center justify-between w-full max-w-5xl shadow-xl border border-white/10 backdrop-blur-md gap-2 sm:gap-4">
-
-            <!-- Left Aligned Logo Pill Container (Fixed Image Dimensions) -->
-<div class="flex items-center shrink-0 max-w-[140px] sm:max-w-[200px]">
-    <div class="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-1.5 flex items-center justify-center shrink-0 w-full h-8 sm:h-10 overflow-hidden">
-        <img src="logo.jpg" alt="GetChurnShield" class="h-[18px] sm:h-[24px] w-auto max-w-full object-contain shrink-0">
+    <!-- Main Header Bar Container -->
+<div class="w-full bg-slate-950 rounded-full px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4 overflow-hidden">
+    
+    <!-- 1. Left Logo Pill -->
+    <div class="flex items-center shrink-0 max-w-[110px] sm:max-w-[200px]">
+        <div class="bg-white rounded-full px-2 sm:px-4 py-1 flex items-center justify-center shrink-0 w-full h-7 sm:h-9 overflow-hidden">
+            <img src="logo.jpg" alt="GetChurnShield" class="h-[14px] sm:h-[20px] w-auto max-w-full object-contain shrink-0">
+        </div>
     </div>
+
+    <!-- 2. Middle Links (Optimized to prevent layout push) -->
+    <div class="flex items-center gap-1.5 sm:gap-6 text-[9px] sm:text-xs font-bold tracking-tight text-gray-200 shrink">
+        <a href="#how-it-works" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">How it works</a>
+        <a href="#comparison" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Benefits</a>
+        <a href="#features" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Infrastructure</a>
+    </div>
+
+    <!-- 3. Right CTA Button (Forced to stay inside the container) -->
+    <div class="flex items-center shrink-0">
+        <a href="#apply" class="bg-white text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-gray-100 transition-all text-center whitespace-nowrap shadow-sm">
+            Secure Spot
+        </a>
+    </div>
+
 </div>
 
 
