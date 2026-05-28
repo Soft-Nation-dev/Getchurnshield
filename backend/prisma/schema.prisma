@@ -1,0 +1,46 @@
+// backend/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum QualificationStatus {
+  QUALIFIED
+  WAITLISTED
+}
+
+enum TrackingStatus {
+  PENDING
+  ACTIVE
+  DEAD_SIGNAL
+}
+
+model Lead {
+  id              String              @id @default(uuid())
+  name            String
+  email           String              @unique
+  appUrl          String
+  mrr             String
+  churnRate       String
+  videoStrategy   String
+  headache        String
+  status          QualificationStatus @default(QUALIFIED)
+  
+  trackingStatus  TrackingStatus      @default(PENDING)
+  lastSignalAt    DateTime?
+  
+  setupPackSent   Boolean             @default(false)
+  nurtureStep     Int                 @default(0)
+  lastEmailSentAt DateTime?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([appUrl])
+  @@index([trackingStatus])
+}
