@@ -3,41 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GetChurnShield</title>
+    <title>GetChurnShield — Premium Done-For-You Onboarding Service</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="src/css/styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; }
+    </style>
 </head>
-<body class="text-[#0F172A] antialiased">
+<body class="text-[#0F172A] antialiased selection:bg-blue-600 selection:text-white">
 
     <header class="fixed top-0 left-0 right-0 z-50 p-4">
-        <div class="flex items-center justify-between bg-slate-950 rounded-full px-4 py-2">
-            <img src="logo.jpg" class="h-8">
-            <nav class="hidden md:flex gap-6 text-xs text-gray-200">
-                <a href="#pricing">Pricing</a>
-            </nav>
-            <a href="#signup-section" class="bg-white text-xs font-bold px-4 py-2 rounded-full">Secure Spot</a>
+        <div class="w-full bg-slate-950 rounded-full px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4 overflow-x-auto">
+            <div class="flex items-center shrink-0 max-w-[110px] sm:max-w-[200px]">
+                <div class="bg-white rounded-full px-2 sm:px-4 py-1 flex items-center justify-center shrink-0 w-full h-7 sm:h-9 overflow-hidden">
+                    <img src="logo.jpg" alt="GetChurnShield" class="h-[14px] sm:h-[20px] w-auto max-w-full object-contain shrink-0">
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 sm:gap-6 text-[9px] sm:text-xs font-bold tracking-tight text-gray-200 shrink-0 whitespace-nowrap">
+                <a href="#how-it-works" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">How it works</a>
+                <a href="#comparison" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Benefits</a>
+                <a href="#features" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Infrastructure</a>
+                <a href="#pricing" class="hover:text-white transition-colors duration-200 py-1 whitespace-nowrap">Pricing & Sandbox</a>
+            </div>
+            <div class="flex items-center shrink-0">
+                <a href="#signup-section" class="bg-white text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-gray-100 transition-all text-center whitespace-nowrap shadow-sm">
+                    Secure Spot
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="pt-32 max-w-4xl mx-auto px-4">
-        <section id="pricing" class="flex flex-col md:flex-row gap-6 items-stretch">
-            <div class="flex-1 flex flex-col bg-gray-50 p-6 rounded-2xl">
-                <h3 class="font-bold">DIY Churn Rescue</h3>
-                <p class="text-xs text-gray-500 mb-4">You create the video.</p>
-                <div class="mt-auto">
-                    <a href="#signup-section" class="block bg-slate-950 text-white py-2 rounded-xl text-center text-xs">Get DIY Access</a>
-                </div>
+    <main class="pt-32 sm:pt-40 pb-24 px-4 flex flex-col items-center text-center max-w-5xl mx-auto">
+        <!-- Hero Section -->
+        <section class="w-full flex flex-col items-center mb-28">
+            <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-4 py-1.5 text-xs font-semibold mb-8 shadow-sm">
+                <img src="logo.jpg" alt="" class="h-4 w-4 object-contain">
+                <span>100% Managed Service: Code, Video & Updates Handled For You</span>
             </div>
-            <div class="flex-1 flex flex-col border-2 border-blue-600 p-6 rounded-2xl">
-                <h3 class="font-bold text-blue-600">Done-For-You</h3>
-                <p class="text-xs text-gray-500 mb-4">We handle everything.</p>
-                <div class="mt-auto">
-                    <a href="#signup-section" class="block bg-blue-600 text-white py-2 rounded-xl text-center text-xs">Request Setup</a>
-                </div>
+            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#0F172A] max-w-4xl leading-[1.15] sm:leading-[1.1] mb-6">
+                We Built GetChurnShield to Drop Your Onboarding Churn by 30%+ — Only Pay For Users Saved
+            </h1>
+            <p class="text-sm sm:text-xl text-gray-600 max-w-3xl font-normal leading-relaxed mb-8">
+                We don't sell you another dashboard. We write the tracking code, script and produce the micro-videos, deploy the hotspots, and continuously update assets whenever your UI changes. If our retention infrastructure doesn't successfully save a user, you owe us nothing.
+            </p>
+            <div class="mb-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-xl px-5 py-2.5 text-xs font-bold tracking-wide flex items-center gap-2 shadow-sm max-w-md w-full justify-center">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>May Intake: Only 3 of 10 Enterprise Slots Left</span>
+            </div>
+            <!-- Signup Form -->
+            <div id="signup-section" class="relative mb-16 z-10 w-full max-w-md">
+                <form id="funnel-signup-form" class="flex flex-col gap-2 w-full bg-gray-50 border border-gray-200 p-4 rounded-2xl text-left shadow-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-1">Founder / Product Lead</label>
+                            <input type="text" id="signup-name" placeholder="Your Name" required class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-xs font-medium">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-1">Company App URL</label>
+                            <input type="url" id="signup-url" placeholder="https://app.com" required class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-xs font-medium">
+                        </div>
+                    </div>
+                    <div class="mt-1 flex flex-col sm:flex-row gap-2">
+                        <input type="email" id="signup-email" placeholder="Enter your business email" required class="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-xs font-medium">
+                        <button type="submit" id="signup-btn" class="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md whitespace-nowrap">Lock In Churn Audit</button>
+                    </div>
+                </form>
             </div>
         </section>
-    </main>
 
-    <script src="src/js/main.js"></script>
+        <!-- Other sections would follow here -->
+    </main>
 </body>
 </html>
