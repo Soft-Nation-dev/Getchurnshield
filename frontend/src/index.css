@@ -413,6 +413,169 @@ p {
   color: var(--muted);
 }
 
+.customer-dashboard-page {
+  padding-bottom: 80px;
+}
+
+.customer-dashboard-hero {
+  display: grid;
+  grid-template-columns: 1.35fr minmax(280px, 0.65fr);
+  gap: 24px;
+  align-items: end;
+  margin: 36px 0 28px;
+  padding: 28px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(91, 33, 182, 0.46), rgba(20, 10, 34, 0.88));
+  box-shadow: var(--shadow-soft);
+}
+
+.customer-dashboard-hero .hero-tag {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-glow);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.customer-dashboard-hero h1 {
+  margin-bottom: 10px;
+  font-size: 2.2rem;
+}
+
+.customer-dashboard-login form {
+  display: flex;
+  gap: 8px;
+}
+
+.customer-status-grid,
+.customer-dashboard-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.customer-status-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 16px;
+}
+
+.customer-dashboard-grid {
+  grid-template-columns: 0.85fr 1.15fr;
+  margin-bottom: 16px;
+}
+
+.customer-status-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.customer-status-tile svg {
+  color: var(--muted);
+}
+
+.customer-status-tile.is-done {
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.05);
+}
+
+.customer-status-tile.is-done svg {
+  color: var(--success);
+}
+
+.customer-status-tile span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.customer-status-tile strong {
+  color: var(--ink);
+}
+
+.customer-dashboard-card {
+  min-width: 0;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.icon-text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.customer-detail-list,
+.delivery-list {
+  display: grid;
+  gap: 10px;
+}
+
+.customer-detail-list span,
+.delivery-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--muted);
+}
+
+.customer-detail-list strong,
+.delivery-item span {
+  color: var(--ink);
+}
+
+.customer-code-block {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 14px;
+  border-radius: 12px;
+  background: #090512;
+  border: 1px solid rgba(167, 139, 250, 0.16);
+  color: var(--accent-glow);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.delivery-item {
+  display: grid;
+  gap: 4px;
+}
+
+.delivery-item code {
+  color: var(--accent-glow);
+  word-break: break-all;
+}
+
+.muted-text {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 @media (max-width: 900px) {
   .header-wrapper {
     padding: 12px 16px;
@@ -448,8 +611,14 @@ p {
 
   .responsive-split,
   .sandbox-main-grid,
-  .sandbox-sim-grid {
+  .sandbox-sim-grid,
+  .customer-dashboard-hero,
+  .customer-dashboard-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  .customer-status-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .sticky-video-card {
@@ -594,6 +763,20 @@ p {
     max-width: calc(100vw - 32px);
   }
 
+  .customer-dashboard-hero {
+    margin-top: 18px;
+    padding: 20px;
+  }
+
+  .customer-dashboard-hero h1 {
+    font-size: 1.8rem;
+    letter-spacing: 0;
+  }
+
+  .customer-dashboard-login form {
+    flex-direction: column;
+  }
+
   .footer {
     padding: 24px 16px 86px;
   }
@@ -665,5 +848,13 @@ p {
     right: 12px;
     justify-content: center;
     width: auto;
+  }
+
+  .customer-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-status-tile {
+    padding: 14px;
   }
 }

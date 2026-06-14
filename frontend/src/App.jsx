@@ -10,6 +10,7 @@ import Home from './pages/Home.jsx';
 import OnboardingVideo from './pages/OnboardingVideo.jsx';
 import Pricing from './pages/Pricing.jsx';
 import Sandbox from './pages/Sandbox.jsx';
+import CustomerDashboard from './pages/CustomerDashboard.jsx';
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +31,12 @@ export default function App() {
     setIsModalOpen(false);
   };
 
+  const handleCompleteOnboarding = (lead) => {
+    setIsModalOpen(false);
+    const email = lead?.leadEmail || modalLeadData.leadEmail || '';
+    window.location.hash = `#/customer-dashboard${email ? `?email=${encodeURIComponent(email)}` : ''}`;
+  };
+
   return (
     <Router>
       <div className="app-container">
@@ -41,6 +48,7 @@ export default function App() {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           initialLeadData={modalLeadData}
+          onComplete={handleCompleteOnboarding}
         />
 
         {/* Page Content Routes */}
@@ -50,6 +58,7 @@ export default function App() {
             <Route path="/onboarding" element={<OnboardingVideo />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/sandbox" element={<Sandbox />} />
+            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
           </Routes>
         </main>
 

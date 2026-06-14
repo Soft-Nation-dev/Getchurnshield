@@ -29,16 +29,31 @@ export async function postLead(payload) {
       signal: controller.signal,
     });
 
+    const data = await response.json().catch(() => null);
+
     if (!response.ok) {
       console.warn(`Lead submission failed with status ${response.status}.`);
-      return null;
+      return data || null;
     }
 
-    return response;
+    return data;
   } catch (error) {
     console.warn('Lead submission unavailable:', error);
     return null;
   } finally {
     window.clearTimeout(timeoutId);
+  }
+}
+
+export async function getLeadByEmail(email) {
+  if (!API_BASE_URL || !email) return null;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/leads?email=${encodeURIComponent(email)}`);
+    const data = await response.json().catch(() => null);
+    return response.ok ? data : null;
+  } catch (error) {
+    console.warn('Lead lookup unavailable:', error);
+    return null;
   }
 }
