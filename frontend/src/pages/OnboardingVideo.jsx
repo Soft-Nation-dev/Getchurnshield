@@ -99,7 +99,7 @@ export default function OnboardingVideo() {
     <div className="section-container animate-fade-in" style={{ paddingBottom: '80px' }}>
       
       {/* Page Header */}
-      <div style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
+      <div className="page-hero compact-hero" style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -126,7 +126,7 @@ export default function OnboardingVideo() {
       </div>
 
       {/* Main Layout: Strategy Selection + Video Player */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '32px', marginBottom: '80px', alignItems: 'start' }}>
+      <div className="responsive-split video-page-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '32px', marginBottom: '80px', alignItems: 'start' }}>
         
         {/* Left Side: Strategy Cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -172,7 +172,7 @@ export default function OnboardingVideo() {
         </div>
 
         {/* Right Side: Showcase Player Panel */}
-        <div className="card" style={{ padding: '24px', position: 'sticky', top: '130px' }}>
+        <div className="card sticky-video-card" style={{ padding: '24px', position: 'sticky', top: '130px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -224,7 +224,7 @@ export default function OnboardingVideo() {
 
       {/* AI Refresh Engine Simulation Playground */}
       <section style={{ borderTop: '1px solid rgba(167, 139, 250, 0.1)', paddingTop: '80px' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto 40px', textAlign: 'center' }}>
+        <div className="page-hero compact-hero" style={{ maxWidth: '800px', margin: '0 auto 40px', textAlign: 'center' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -257,13 +257,13 @@ export default function OnboardingVideo() {
           background: 'rgba(20, 10, 34, 0.4)',
           borderColor: 'rgba(167, 139, 250, 0.2)'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '30px' }}>
+          <div className="responsive-split simulator-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '30px' }}>
             
             {/* Left Controller Panel */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <label className="form-label">Simulate UI Update Version</label>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                <div className="segmented-mobile-stack" style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                   {['v1.1 (Billing Update)', 'v2.0 (Redesign)'].map((ver) => {
                     const active = (ver.startsWith('v1.1') && uiVersion === 'v1.1') || (ver.startsWith('v2.0') && uiVersion === 'v2.0') || (uiVersion === 'v1.0' && ver.startsWith('v1.1'));
                     return (

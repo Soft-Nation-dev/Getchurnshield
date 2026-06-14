@@ -332,7 +332,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
               )}
 
               {/* Chatbot Window */}
-              <div style={{
+              <div className="modal-chat-window" style={{
                 background: 'rgba(0, 0, 0, 0.3)',
                 border: '1px solid var(--border)',
                 borderRadius: '16px',
@@ -468,7 +468,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="modal-action-row" style={{ display: 'flex', gap: '10px' }}>
                 <button 
                   onClick={() => setStep(1)} 
                   className="cta-button" 

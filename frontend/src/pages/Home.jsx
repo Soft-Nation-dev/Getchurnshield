@@ -31,7 +31,7 @@ export default function Home({ onOpenModal }) {
     <div className="section-container animate-fade-in" style={{ paddingBottom: '80px' }}>
       
       {/* Hero Header Section */}
-      <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', margin: '40px auto 80px', maxWidth: '960px' }}>
+      <section className="page-hero" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', margin: '40px auto 80px', maxWidth: '960px' }}>
         
         {/* Banner */}
         <div style={{
@@ -102,8 +102,8 @@ export default function Home({ onOpenModal }) {
 
         {/* Lead Lock Form */}
         <div style={{ position: 'relative', width: '100%', maxWidth: '520px', zIndex: '10' }}>
-          <form onSubmit={handleSubmit} className="card" style={{ padding: '24px', textAlign: 'left' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+          <form onSubmit={handleSubmit} className="card lead-lock-card" style={{ padding: '24px', textAlign: 'left' }}>
+            <div className="lead-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
               <div>
                 <label className="form-label">Founder / Product Lead</label>
                 <input
@@ -146,7 +146,7 @@ export default function Home({ onOpenModal }) {
             </div>
           </form>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px', fontSize: '0.8rem', fontWeight: '600', color: 'var(--muted)' }}>
+          <div className="trust-row" style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px', fontSize: '0.8rem', fontWeight: '600', color: 'var(--muted)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Check size={14} style={{ color: 'var(--success)' }} />
               100% Performance-Based
@@ -159,7 +159,7 @@ export default function Home({ onOpenModal }) {
         </div>
 
         {/* Video Player Section */}
-        <div style={{
+        <div className="hero-video-shell" style={{
           marginTop: '60px',
           width: '100%',
           background: 'rgba(255,255,255,0.02)',
@@ -209,7 +209,8 @@ export default function Home({ onOpenModal }) {
                   </div>
                 </div>
 
-                <button 
+                <button
+                  className="video-play-button"
                   onClick={() => setIsVideoPlaying(true)}
                   style={{
                     position: 'relative',
@@ -274,7 +275,7 @@ export default function Home({ onOpenModal }) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        <div className="responsive-card-grid comparison-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
           
           {/* Card 1: Plain SaaS */}
           <div className="card" style={{ borderColor: 'rgba(248, 113, 113, 0.2)', background: 'rgba(248, 113, 113, 0.01)' }}>
@@ -340,7 +341,7 @@ export default function Home({ onOpenModal }) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+        <div className="responsive-card-grid feature-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
           
           <div className="card" style={{ padding: '24px' }}>
             <div style={{

@@ -107,7 +107,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
     <div className="section-container animate-fade-in" style={{ paddingBottom: '80px' }}>
       
       {/* Page Header */}
-      <div style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
+      <div className="page-hero compact-hero" style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -142,7 +142,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
         boxShadow: 'var(--shadow)',
         marginBottom: '60px'
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: '8px' }}>
+        <div className="sandbox-main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: '8px' }}>
           
           {/* Left Navigation Steps */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
@@ -253,7 +253,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
 
       {/* Watchdog Simulation Output console */}
       <section style={{ borderTop: '1px solid rgba(167, 139, 250, 0.1)', paddingTop: '60px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', alignItems: 'start' }}>
+        <div className="sandbox-sim-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', alignItems: 'start' }}>
           
           {/* Description */}
           <div>
@@ -290,7 +290,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
           </div>
 
           {/* Terminal Box */}
-          <div className="card" style={{
+          <div className="card terminal-card" style={{
             background: '#090512',
             borderColor: 'rgba(167, 139, 250, 0.25)',
             boxShadow: 'var(--shadow)',

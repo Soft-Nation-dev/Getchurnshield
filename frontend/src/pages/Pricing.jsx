@@ -18,7 +18,7 @@ export default function Pricing() {
     <div className="section-container animate-fade-in" style={{ paddingBottom: '80px' }}>
       
       {/* Title Header */}
-      <div style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
+      <div className="page-hero compact-hero" style={{ textAlign: 'center', margin: '40px auto 60px', maxWidth: '800px' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -45,7 +45,7 @@ export default function Pricing() {
       </div>
 
       {/* MAU Tier Calculator */}
-      <div className="card" style={{
+      <div className="card pricing-calculator" style={{
         maxWidth: '720px',
         margin: '0 auto 60px',
         padding: '30px',
@@ -76,7 +76,7 @@ export default function Pricing() {
               accentColor: 'var(--accent)'
             }}
           />
-          <div style={{
+          <div className="mau-labels" style={{
             display: 'flex',
             justifyContent: 'space-between',
             marginTop: '16px',
@@ -109,7 +109,7 @@ export default function Pricing() {
       </div>
 
       {/* Pricing Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '60px' }}>
+      <div className="responsive-card-grid pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '60px' }}>
         
         {/* Card 1: Retention Only */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'rgba(255,255,255,0.015)' }}>
@@ -124,7 +124,7 @@ export default function Pricing() {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '24px' }}>
-            <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.retention}</span>
+            <span className="price-value" style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.retention}</span>
             {currentTier.retention !== 'Custom' && <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>/mo</span>}
           </div>
 
@@ -161,7 +161,7 @@ export default function Pricing() {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '24px' }}>
-            <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.acquisition}</span>
+            <span className="price-value" style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.acquisition}</span>
             {currentTier.acquisition !== 'Custom' && <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>/mo</span>}
           </div>
 
@@ -223,7 +223,7 @@ export default function Pricing() {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '24px' }}>
-            <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.combined}</span>
+            <span className="price-value" style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff' }}>{currentTier.combined}</span>
             {currentTier.combined !== 'Custom' && <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>/mo</span>}
           </div>
 
@@ -254,7 +254,7 @@ export default function Pricing() {
       </div>
 
       {/* Performance Split Info Card */}
-      <div className="card" style={{
+      <div className="card performance-card" style={{
         background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(20, 10, 34, 0.8) 100%)',
         borderColor: 'rgba(167, 139, 250, 0.3)',
         textAlign: 'center',
