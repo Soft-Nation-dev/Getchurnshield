@@ -7,7 +7,7 @@ export default function Header() {
       <div className="header-inner">
         <NavLink to="/" className="brand">
           <div className="logo-container">
-            <img src="/logo.jpeg" alt="GetChurnShield" className="logo-img" />
+            <img src="./logo.jpeg" alt="GetChurnShield" className="logo-img" />
           </div>
           <span className="brand-text">GetChurnShield</span>
         </NavLink>
