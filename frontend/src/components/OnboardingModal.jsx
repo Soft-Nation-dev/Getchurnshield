@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Shield, Terminal, Send, Check, Play, Cpu, Phone } from 'lucide-react';
+import { postLead, watchdogScriptUrl } from '../lib/runtime.js';
 
 function CalendlyEmbed() {
   useEffect(() => {
@@ -24,8 +25,6 @@ function CalendlyEmbed() {
 }
 
 export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
-  if (!isOpen) return null;
-
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     mrr: '',
@@ -58,6 +57,8 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
     }
   }, [chatMessages, isTyping]);
 
+  if (!isOpen) return null;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -68,26 +69,15 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
     setStep(2);
     startChatSimulation();
 
-    try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
-      await fetch(`${apiBase}/api/leads`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          leadName: formData.leadName,
-          leadUrl: formData.leadUrl,
-          leadEmail: formData.leadEmail,
-          mrr: formData.mrr,
-          churn: formData.churn,
-          strategy: formData.strategy,
-          headache: formData.headache,
-        }),
-      });
-    } catch (err) {
-      console.error('Failed to post diagnostics:', err);
-    }
+    await postLead({
+      leadName: formData.leadName,
+      leadUrl: formData.leadUrl,
+      leadEmail: formData.leadEmail,
+      mrr: formData.mrr,
+      churn: formData.churn,
+      strategy: formData.strategy,
+      headache: formData.headache,
+    });
   };
 
   // Chat Simulation sequence
@@ -131,7 +121,11 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
     setTimeout(() => {
       if (optionId === 'get-code') {
         const clientToken = `cs_live_${formData.leadName ? formData.leadName.toLowerCase().replace(/\s+/g, '_') : 'client'}_${Math.random().toString(36).substring(2, 8)}`;
-        addChatMessage('assistant', `Here is your watchdog telemetry script custom-configured for your domain. Copy and paste this snippet into your root index.html file:\n\n\`\`\`html\n<script src="http://localhost:8787/shield/watchdog.js" data-api-key="${clientToken}"></script>\n\`\`\`\n\nYou can also find detailed layout instructions in the Sandbox tab!`);
+        const scriptUrl = watchdogScriptUrl();
+        const snippet = scriptUrl
+          ? `<script src="${scriptUrl}" data-api-key="${clientToken}"></script>`
+          : '<!-- Set VITE_API_BASE_URL to your deployed Worker URL to generate this script URL. -->';
+        addChatMessage('assistant', `Here is your watchdog telemetry script custom-configured for your domain. Copy and paste this snippet into your root index.html file:\n\n\`\`\`html\n${snippet}\n\`\`\`\n\nYou can also find detailed layout instructions in the Sandbox tab!`);
       } else if (optionId === 'schedule-call') {
         addChatMessage('assistant', `Loading Calendly schedule operator... 📅`);
         setTimeout(() => {
@@ -143,20 +137,15 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData }) {
         addChatMessage('assistant', `Perfect! A deployment pack containing the Shadow DOM sandbox code and tracking checklist has been sent to ${formData.leadEmail || 'your email'} using Resend API.`);
         
         // Re-post to ensure email triggers
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
-        fetch(`${apiBase}/api/leads`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            leadName: formData.leadName,
-            leadUrl: formData.leadUrl,
-            leadEmail: formData.leadEmail,
-            mrr: formData.mrr,
-            churn: formData.churn,
-            strategy: formData.strategy,
-            headache: formData.headache,
-          }),
-        }).catch(err => console.error(err));
+        postLead({
+          leadName: formData.leadName,
+          leadUrl: formData.leadUrl,
+          leadEmail: formData.leadEmail,
+          mrr: formData.mrr,
+          churn: formData.churn,
+          strategy: formData.strategy,
+          headache: formData.headache,
+        });
       } else if (optionId === 'restart') {
         setShowCalendly(false);
         startChatSimulation();

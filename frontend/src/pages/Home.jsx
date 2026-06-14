@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Play, Check, X, Sparkles, Zap, AlertTriangle, ArrowRight, Activity, Terminal, ShieldAlert } from 'lucide-react';
+import { assetUrl, postLead } from '../lib/runtime.js';
 
 export default function Home({ onOpenModal }) {
   const [formData, setFormData] = useState({
@@ -19,22 +20,11 @@ export default function Home({ onOpenModal }) {
     e.preventDefault();
     onOpenModal(formData);
 
-    try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
-      await fetch(`${apiBase}/api/leads`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          leadName: formData.leadName,
-          leadUrl: formData.leadUrl,
-          leadEmail: formData.leadEmail,
-        }),
-      });
-    } catch (err) {
-      console.error('Failed to post lead:', err);
-    }
+    await postLead({
+      leadName: formData.leadName,
+      leadUrl: formData.leadUrl,
+      leadEmail: formData.leadEmail,
+    });
   };
 
   return (
@@ -245,7 +235,7 @@ export default function Home({ onOpenModal }) {
               </>
             ) : (
               <video 
-                src="/recording.mp4" 
+                src={assetUrl('recording.mp4')} 
                 controls 
                 autoPlay 
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}

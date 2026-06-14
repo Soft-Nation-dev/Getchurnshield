@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Video, Sparkles, Wand2, Terminal, Play, Cpu, Check, Layers, AlertCircle, ArrowRight } from 'lucide-react';
+import { assetUrl } from '../lib/runtime.js';
 
 export default function OnboardingVideo() {
   const [activeStrategy, setActiveStrategy] = useState('diy');
@@ -9,7 +10,7 @@ export default function OnboardingVideo() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationLogs, setSimulationLogs] = useState([]);
   const [simStep, setSimStep] = useState(0);
-  const [videoSource, setVideoSource] = useState('/recording.mp4');
+  const [videoSource, setVideoSource] = useState(assetUrl('recording.mp4'));
   const [simulationComplete, setSimulationComplete] = useState(false);
 
   const videoRef = useRef(null);

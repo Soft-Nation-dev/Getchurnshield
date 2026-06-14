@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Terminal, Code, Check, Copy, ArrowRight, Play, AlertCircle, RefreshCw } from 'lucide-react';
+import { assetUrl } from '../lib/runtime.js';
 
 export default function Sandbox() {
   const [activeStep, setActiveStep] = useState(1);
@@ -51,7 +52,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
   selector: '#db-sync-container',
   rageClicks: true,
   hesitationTimeoutMs: 30000,
-  assetUrl: '/recording.mp4'
+  assetUrl: '${assetUrl('recording.mp4')}'
 }]);`,
       fileName: 'watchdogConfig.js'
     }
@@ -312,7 +313,7 @@ window.ChurnShield.push(['watchdog', 'onboarding_database_sync', {
             }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: isRunning ? 'var(--success)' : 'var(--muted)' }} />
               <span>LIVE_TELEMETRY_WATCHDOG_SHELL</span>
-              <span style={{ marginLeft: 'auto' }}>ws://localhost:9288</span>
+              <span style={{ marginLeft: 'auto' }}>offline-safe simulator</span>
             </div>
 
             <div style={{

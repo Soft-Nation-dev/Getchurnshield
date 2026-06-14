@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { assetUrl } from '../lib/runtime.js';
 
 export default function Header() {
   return (
@@ -7,7 +8,7 @@ export default function Header() {
       <div className="header-inner">
         <NavLink to="/" className="brand">
           <div className="logo-container">
-            <img src="./logo.jpeg" alt="GetChurnShield" className="logo-img" />
+            <img src={assetUrl('logo.jpeg')} alt="GetChurnShield" className="logo-img" />
           </div>
           <span className="brand-text">GetChurnShield</span>
         </NavLink>
