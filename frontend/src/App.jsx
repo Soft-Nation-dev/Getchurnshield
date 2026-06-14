@@ -4,6 +4,7 @@ import { Shield } from 'lucide-react';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import OnboardingModal from './components/OnboardingModal.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx';
 
 // Pages
 import Home from './pages/Home.jsx';
@@ -40,6 +41,8 @@ export default function App() {
   return (
     <Router>
       <div className="app-container">
+        <ScrollToTop />
+
         {/* Navigation Header */}
         <Header />
 
