@@ -22,6 +22,30 @@ function normalizeUrl(value) {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+function registrationFromLead(source = {}) {
+  return {
+    leadName: source.leadName || '',
+    leadUrl: source.leadUrl || '',
+    leadEmail: source.leadEmail || '',
+    mrr: source.mrr || '',
+    churn: source.churn || '',
+    strategy: source.strategy || 'diy',
+    headache: source.headache || '',
+  };
+}
+
+function normalizedRegistration(source = {}) {
+  return {
+    leadName: (source.leadName || '').trim(),
+    leadUrl: normalizeUrl(source.leadUrl),
+    leadEmail: (source.leadEmail || '').trim().toLowerCase(),
+    mrr: source.mrr || '',
+    churn: source.churn || '',
+    strategy: source.strategy || 'diy',
+    headache: (source.headache || '').trim(),
+  };
+}
+
 function StatusTile({ icon: Icon, label, value, done, active, onClick }) {
   return (
     <button type="button" className={`customer-status-tile ${done ? 'is-done' : ''} ${active ? 'is-active' : ''}`} onClick={onClick}>
@@ -44,30 +68,14 @@ export default function CustomerDashboard() {
   const [activeModule, setActiveModule] = useState('registration');
   const [actionStatus, setActionStatus] = useState('');
   const [showCalendarTools, setShowCalendarTools] = useState(false);
-  const [registrationDraft, setRegistrationDraft] = useState({
-    leadName: saved.lead?.leadName || saved.formData?.leadName || '',
-    leadUrl: saved.lead?.leadUrl || saved.formData?.leadUrl || '',
-    leadEmail: saved.lead?.leadEmail || saved.formData?.leadEmail || '',
-    mrr: saved.lead?.mrr || saved.formData?.mrr || '',
-    churn: saved.lead?.churn || saved.formData?.churn || '',
-    strategy: saved.lead?.strategy || saved.formData?.strategy || 'diy',
-    headache: saved.lead?.headache || saved.formData?.headache || '',
-  });
+  const [registrationDraft, setRegistrationDraft] = useState(registrationFromLead(saved.lead || saved.formData || {}));
 
   const refreshLead = async (targetEmail = email) => {
     if (!targetEmail) return null;
     const result = await getLeadByEmail(targetEmail);
     if (result?.lead) {
       setLead(result.lead);
-      setRegistrationDraft({
-        leadName: result.lead.leadName || '',
-        leadUrl: result.lead.leadUrl || '',
-        leadEmail: result.lead.leadEmail || '',
-        mrr: result.lead.mrr || '',
-        churn: result.lead.churn || '',
-        strategy: result.lead.strategy || 'diy',
-        headache: result.lead.headache || '',
-      });
+      setRegistrationDraft(registrationFromLead(result.lead));
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead, dashboardVisited: true }));
       return result.lead;
     }
@@ -87,6 +95,7 @@ export default function CustomerDashboard() {
       if (!active) return;
       if (result?.lead) {
         setLead(result.lead);
+        setRegistrationDraft(registrationFromLead(result.lead));
         window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...saved, lead: result.lead, dashboardVisited: true }));
         postLead({ ...result.lead, action: 'dashboard_visited' });
       } else {
@@ -142,6 +151,11 @@ export default function CustomerDashboard() {
     await refreshLead(lead.leadEmail);
   };
 
+  const registrationHasChanges = useMemo(() => {
+    if (!lead) return false;
+    return JSON.stringify(normalizedRegistration(registrationDraft)) !== JSON.stringify(normalizedRegistration(lead));
+  }, [lead, registrationDraft]);
+
   const saveRegistrationUpdates = async (event) => {
     event.preventDefault();
     if (!registrationDraft.leadEmail) {
@@ -159,15 +173,7 @@ export default function CustomerDashboard() {
     if (result?.lead) {
       setLead(result.lead);
       setEmail(result.lead.leadEmail);
-      setRegistrationDraft({
-        leadName: result.lead.leadName || '',
-        leadUrl: result.lead.leadUrl || '',
-        leadEmail: result.lead.leadEmail || '',
-        mrr: result.lead.mrr || '',
-        churn: result.lead.churn || '',
-        strategy: result.lead.strategy || 'diy',
-        headache: result.lead.headache || '',
-      });
+      setRegistrationDraft(registrationFromLead(result.lead));
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead, formData: payload }));
       setActionStatus('Registration updated and saved to Cloudflare.');
     } else {
@@ -285,7 +291,9 @@ export default function CustomerDashboard() {
                     <option value="dfy">Concierge</option>
                   </select>
                   <input className="form-input customer-registration-form-wide" value={registrationDraft.headache} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, headache: event.target.value }))} placeholder="Biggest churn headache" required />
-                  <button className="cta-button customer-registration-form-wide" type="submit">Save registration updates</button>
+                  {registrationHasChanges ? (
+                    <button className="cta-button customer-registration-form-wide" type="submit">Save registration updates</button>
+                  ) : null}
                 </form>
               ) : null}
               {activeModule === 'sdk' ? <button className="cta-button" onClick={() => runCloudAction('generate_sdk')}>Generate SDK</button> : null}
