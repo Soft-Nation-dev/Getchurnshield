@@ -56,6 +56,10 @@ function emailFailureMessage(result) {
   return `Brevo did not accept the email yet.\n\nWorker response did not include provider details. API base: ${API_BASE_URL}`;
 }
 
+function hasValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || '').trim());
+}
+
 export default function OnboardingModal({ isOpen, onClose, initialLeadData, onComplete }) {
   const savedProgress = readSavedProgress();
   const [step, setStep] = useState(savedProgress.diagnosticsCompleted ? 2 : 1);
@@ -147,10 +151,15 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
   };
 
   const syncLead = async (action = '') => {
+    const leadEmail = (formData.leadEmail || leadRecord?.leadEmail || '').trim();
+    if (!hasValidEmail(leadEmail)) {
+      return { error: 'Missing customer email. Enter a valid business email before sending docs or scheduling confirmations.' };
+    }
+
     const result = await postLead({
       leadName: formData.leadName,
       leadUrl: formData.leadUrl,
-      leadEmail: formData.leadEmail,
+      leadEmail,
       mrr: formData.mrr,
       churn: formData.churn,
       strategy: formData.strategy,
@@ -166,6 +175,10 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
 
   const handleNextStep = async (e) => {
     e.preventDefault();
+    if (!hasValidEmail(formData.leadEmail)) {
+      saveProgressPatch({ formData });
+      return;
+    }
     setStep(2);
     saveProgressPatch({ formData, diagnosticsCompleted: true, currentStep: 2 });
     startAssistant(false);
@@ -209,6 +222,17 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
   const handleOptionClick = async (optionId, optionText) => {
     addChatMessage('user', optionText);
     setActiveOptions([]);
+
+    if ((optionId === 'send-email' || optionId === 'schedule-call' || optionId === 'confirm-scheduled') && !hasValidEmail(formData.leadEmail || leadRecord?.leadEmail)) {
+      addChatMessage('assistant', 'I need a valid customer email before I can send Brevo emails or save schedule confirmations. Click Edit Registration, add the business email, then come back here.');
+      setActiveOptions([
+        { id: 'get-code', text: 'View SDK code' },
+        { id: 'send-email', text: 'Send email docs' },
+        { id: 'schedule-call', text: 'Schedule call' },
+      ]);
+      return;
+    }
+
     setIsTyping(true);
     setIsSavingAction(true);
 
@@ -263,7 +287,12 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
     }
 
     if (optionId === 'confirm-scheduled') {
-      const result = await postLead({ ...formData, action: 'calendar_scheduled', calendarScheduledAt: new Date().toISOString() });
+      const result = await postLead({
+        ...formData,
+        leadEmail: (formData.leadEmail || leadRecord?.leadEmail || '').trim(),
+        action: 'calendar_scheduled',
+        calendarScheduledAt: new Date().toISOString(),
+      });
       if (result?.lead) setLeadRecord(result.lead);
       saveProgressPatch({
         lead: result?.lead,
@@ -318,6 +347,48 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
         <div className="modal-body">
           {step === 1 ? (
             <form onSubmit={handleNextStep} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <label className="form-label">Founder / Product Lead</label>
+                <input
+                  type="text"
+                  name="leadName"
+                  value={formData.leadName}
+                  onChange={handleChange}
+                  placeholder="Your name"
+                  required
+                  className="form-input"
+                  style={{ background: '#1c122e' }}
+                />
+              </div>
+
+              <div>
+                <label className="form-label">Company App URL</label>
+                <input
+                  type="url"
+                  name="leadUrl"
+                  value={formData.leadUrl}
+                  onChange={handleChange}
+                  placeholder="https://app.com"
+                  required
+                  className="form-input"
+                  style={{ background: '#1c122e' }}
+                />
+              </div>
+
+              <div>
+                <label className="form-label">Business Email</label>
+                <input
+                  type="email"
+                  name="leadEmail"
+                  value={formData.leadEmail}
+                  onChange={handleChange}
+                  placeholder="founder@company.com"
+                  required
+                  className="form-input"
+                  style={{ background: '#1c122e' }}
+                />
+              </div>
+
               <div>
                 <label className="form-label">Company Monthly Recurring Revenue (MRR)</label>
                 <select name="mrr" value={formData.mrr} onChange={handleChange} required className="form-input" style={{ background: '#1c122e', border: '1px solid var(--border)' }}>
