@@ -131,7 +131,7 @@ export default function CustomerDashboard() {
     if (action === 'generate_sdk') {
       setActionStatus(result?.lead?.sdkToken ? `SDK generated: ${result.lead.sdkToken}` : 'SDK request saved.');
     } else if (action === 'send_docs') {
-      setActionStatus(result?.email?.sent ? 'Deployment email sent through Brevo.' : `Email not accepted yet: ${result?.email?.error || 'No provider details returned.'}`);
+      setActionStatus(result?.email?.sent ? 'Deployment email queued successfully.' : `Email not accepted yet: ${result?.email?.error || 'No provider details returned.'}`);
     } else if (action === 'open_calendar') {
       setShowCalendarTools(true);
       setActionStatus('Calendar opened. Mark it scheduled after you complete the booking.');
@@ -195,7 +195,7 @@ export default function CustomerDashboard() {
     },
     email: {
       title: 'Deployment email',
-      body: 'Send the setup pack through Brevo and store the provider delivery IDs on the registration record.',
+      body: 'Send the setup pack and store delivery references on the registration record.',
       steps: [
         `Requested: ${stageDone(lead, 'docsEmailRequested') ? 'yes' : 'not yet'}`,
         `Sent: ${stageDone(lead, 'docsEmailSent') ? 'yes' : 'not yet'}`,

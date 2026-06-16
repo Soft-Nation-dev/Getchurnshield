@@ -48,12 +48,12 @@ function emailFailureMessage(result) {
     return `I saved the request locally, but I could not reach the Worker at ${API_BASE_URL}. Please deploy the latest frontend or check the network connection.`;
   }
   if (result.error || result.message) {
-    return `Brevo did not accept the email yet.\n\n${result.error || result.message}`;
+    return `The email provider did not accept the message yet.\n\n${result.error || result.message}`;
   }
   if (result.email?.error) {
-    return `Brevo did not accept the email yet.\n\n${result.email.error}`;
+    return `The email provider did not accept the message yet.\n\n${result.email.error}`;
   }
-  return `Brevo did not accept the email yet.\n\nWorker response did not include provider details. API base: ${API_BASE_URL}`;
+  return `The email provider did not accept the message yet.\n\nWorker response did not include provider details. API base: ${API_BASE_URL}`;
 }
 
 function hasValidEmail(value) {
@@ -250,7 +250,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
     setActiveOptions([]);
 
     if ((optionId === 'send-email' || optionId === 'schedule-call' || optionId === 'confirm-scheduled') && !hasValidEmail(formData.leadEmail || leadRecord?.leadEmail)) {
-      addChatMessage('assistant', 'I need a valid customer email before I can send Brevo emails or save schedule confirmations. Click Edit Registration, add the business email, then come back here.');
+      addChatMessage('assistant', 'I need a valid customer email before I can send deployment emails or save schedule confirmations. Click Edit Registration, add the business email, then come back here.');
       setActiveOptions([
         { id: 'get-code', text: 'View SDK code' },
         { id: 'send-email', text: 'Send email docs' },
@@ -286,7 +286,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
       addChatMessage(
         'assistant',
         result?.email?.sent
-          ? `Deployment email sent through Brevo.\n\nDelivery references:\n${deliveries}`
+          ? `Deployment email queued successfully.\n\nDelivery references:\n${deliveries}`
           : `The request is saved.\n\n${emailFailureMessage(result)}`
       );
     }
@@ -330,7 +330,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
       addChatMessage(
         'assistant',
         result?.email?.sent
-          ? `Audit call status saved to Cloudflare. Schedule confirmation email sent through Brevo.\n\nDelivery references:\n${deliveries}`
+          ? `Audit call status saved to Cloudflare. Schedule confirmation email queued successfully.\n\nDelivery references:\n${deliveries}`
           : `Audit call status saved.\n\n${emailFailureMessage(result)}`
       );
     }
