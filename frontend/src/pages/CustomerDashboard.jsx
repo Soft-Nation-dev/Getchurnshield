@@ -16,13 +16,13 @@ function stageDone(lead, key) {
   return Boolean(lead?.onboardingProgress?.[key] || readSavedProgress()?.[key]);
 }
 
-function StatusTile({ icon: Icon, label, value, done }) {
+function StatusTile({ icon: Icon, label, value, done, active, onClick }) {
   return (
-    <div className={`customer-status-tile ${done ? 'is-done' : ''}`}>
+    <button type="button" className={`customer-status-tile ${done ? 'is-done' : ''} ${active ? 'is-active' : ''}`} onClick={onClick}>
       <Icon size={18} />
       <span>{label}</span>
       <strong>{value}</strong>
-    </div>
+    </button>
   );
 }
 
@@ -35,6 +35,20 @@ export default function CustomerDashboard() {
   const [loading, setLoading] = useState(Boolean(initialEmail));
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [activeModule, setActiveModule] = useState('registration');
+  const [actionStatus, setActionStatus] = useState('');
+  const [showCalendarTools, setShowCalendarTools] = useState(false);
+
+  const refreshLead = async (targetEmail = email) => {
+    if (!targetEmail) return null;
+    const result = await getLeadByEmail(targetEmail);
+    if (result?.lead) {
+      setLead(result.lead);
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead, dashboardVisited: true }));
+      return result.lead;
+    }
+    return null;
+  };
 
   useEffect(() => {
     let active = true;
@@ -82,6 +96,66 @@ export default function CustomerDashboard() {
     setTimeout(() => setCopied(false), 1800);
   };
 
+  const runCloudAction = async (action) => {
+    if (!lead) return;
+    setActionStatus('Saving to Cloudflare...');
+    const result = await postLead({ ...lead, action });
+    if (result?.lead) {
+      setLead(result.lead);
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead }));
+    }
+    if (action === 'generate_sdk') {
+      setActionStatus(result?.lead?.sdkToken ? `SDK generated: ${result.lead.sdkToken}` : 'SDK request saved.');
+    } else if (action === 'send_docs') {
+      setActionStatus(result?.email?.sent ? 'Deployment email sent through Brevo.' : `Email not accepted yet: ${result?.email?.error || 'No provider details returned.'}`);
+    } else if (action === 'open_calendar') {
+      setShowCalendarTools(true);
+      setActionStatus('Calendar opened. Mark it scheduled after you complete the booking.');
+    } else if (action === 'calendar_scheduled') {
+      setShowCalendarTools(false);
+      setActionStatus('Calendar schedule status saved.');
+    }
+    await refreshLead(lead.leadEmail);
+  };
+
+  const moduleDetails = {
+    registration: {
+      title: 'Registration',
+      body: 'Your core company, email, MRR, churn, and onboarding strategy are stored in Cloudflare Redis and visible to the admin dashboard.',
+      steps: [
+        `Lead captured: ${stageDone(lead, 'leadCaptured') ? 'yes' : 'not yet'}`,
+        `Diagnostics completed: ${stageDone(lead, 'diagnosticsCompleted') ? 'yes' : 'not yet'}`,
+        `Registration completed: ${stageDone(lead, 'registrationCompleted') ? 'yes' : 'not yet'}`,
+      ],
+    },
+    sdk: {
+      title: 'SDK snippet',
+      body: 'Generate the customer SDK token and copy the real script tag that points to the deployed Cloudflare Worker.',
+      steps: [
+        `Token: ${lead?.sdkToken || 'pending'}`,
+        `Generated: ${stageDone(lead, 'sdkGenerated') ? 'yes' : 'not yet'}`,
+      ],
+    },
+    email: {
+      title: 'Deployment email',
+      body: 'Send the setup pack through Brevo and store the provider delivery IDs on the registration record.',
+      steps: [
+        `Requested: ${stageDone(lead, 'docsEmailRequested') ? 'yes' : 'not yet'}`,
+        `Sent: ${stageDone(lead, 'docsEmailSent') ? 'yes' : 'not yet'}`,
+        ...(lead?.email?.deliveries || []).map((item) => `${item.type}: ${item.id}`),
+      ],
+    },
+    calendar: {
+      title: 'Audit call',
+      body: 'Open the Calendly audit flow and save whether the customer has scheduled the retention implementation call.',
+      steps: [
+        `Calendar opened: ${stageDone(lead, 'calendarOpened') ? 'yes' : 'not yet'}`,
+        `Scheduled: ${stageDone(lead, 'calendarScheduled') ? 'yes' : 'not yet'}`,
+        `Scheduled at: ${lead?.calendar?.scheduledAt || 'pending'}`,
+      ],
+    },
+  };
+
   return (
     <section className="section-container customer-dashboard-page animate-fade-in">
       <div className="customer-dashboard-hero">
@@ -113,10 +187,42 @@ export default function CustomerDashboard() {
       {lead ? (
         <>
           <div className="customer-status-grid">
-            <StatusTile icon={Shield} label="Registration" value={stageDone(lead, 'registrationCompleted') ? 'Complete' : 'In progress'} done={stageDone(lead, 'diagnosticsCompleted')} />
-            <StatusTile icon={Video} label="SDK snippet" value={stageDone(lead, 'sdkGenerated') ? 'Generated' : 'Pending'} done={stageDone(lead, 'sdkGenerated')} />
-            <StatusTile icon={Mail} label="Deployment email" value={stageDone(lead, 'docsEmailSent') ? 'Sent' : 'Pending'} done={stageDone(lead, 'docsEmailSent')} />
-            <StatusTile icon={CalendarDays} label="Audit call" value={stageDone(lead, 'calendarScheduled') ? 'Scheduled' : 'Not scheduled'} done={stageDone(lead, 'calendarScheduled')} />
+            <StatusTile icon={Shield} label="Registration" value={stageDone(lead, 'registrationCompleted') ? 'Complete' : 'In progress'} done={stageDone(lead, 'diagnosticsCompleted')} active={activeModule === 'registration'} onClick={() => setActiveModule('registration')} />
+            <StatusTile icon={Video} label="SDK snippet" value={stageDone(lead, 'sdkGenerated') ? 'Generated' : 'Pending'} done={stageDone(lead, 'sdkGenerated')} active={activeModule === 'sdk'} onClick={() => setActiveModule('sdk')} />
+            <StatusTile icon={Mail} label="Deployment email" value={stageDone(lead, 'docsEmailSent') ? 'Sent' : 'Pending'} done={stageDone(lead, 'docsEmailSent')} active={activeModule === 'email'} onClick={() => setActiveModule('email')} />
+            <StatusTile icon={CalendarDays} label="Audit call" value={stageDone(lead, 'calendarScheduled') ? 'Scheduled' : 'Not scheduled'} done={stageDone(lead, 'calendarScheduled')} active={activeModule === 'calendar'} onClick={() => setActiveModule('calendar')} />
+          </div>
+
+          <div className="card customer-dashboard-card customer-module-panel">
+            <div className="card-header-row">
+              <h3>{moduleDetails[activeModule].title}</h3>
+              <span className="muted-text">Cloudflare saved</span>
+            </div>
+            <p>{moduleDetails[activeModule].body}</p>
+            <div className="customer-detail-list">
+              {moduleDetails[activeModule].steps.map((step) => (
+                <span key={step}>{step}</span>
+              ))}
+            </div>
+            <div className="customer-module-actions">
+              {activeModule === 'sdk' ? <button className="cta-button" onClick={() => runCloudAction('generate_sdk')}>Generate SDK</button> : null}
+              {activeModule === 'email' ? <button className="cta-button" onClick={() => runCloudAction('send_docs')}>Send deployment email</button> : null}
+              {activeModule === 'calendar' ? (
+                <>
+                  <button className="cta-button" onClick={() => runCloudAction('open_calendar')}>Open Calendly</button>
+                  <button className="icon-text-button" onClick={() => runCloudAction('calendar_scheduled')}>Mark scheduled</button>
+                </>
+              ) : null}
+              <button className="icon-text-button" onClick={() => refreshLead(lead.leadEmail)}>Refresh cloud data</button>
+            </div>
+            {showCalendarTools && activeModule === 'calendar' ? (
+              <div className="calendar-action-box">
+                <a href={`https://calendly.com/getchurnshield/30min?name=${encodeURIComponent(lead.leadName || '')}&email=${encodeURIComponent(lead.leadEmail || '')}`} target="_blank" rel="noopener noreferrer">
+                  Continue booking in Calendly
+                </a>
+              </div>
+            ) : null}
+            {actionStatus ? <p className="muted-text">{actionStatus}</p> : null}
           </div>
 
           <div className="customer-dashboard-grid">

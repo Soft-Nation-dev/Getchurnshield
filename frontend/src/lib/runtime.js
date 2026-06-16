@@ -1,6 +1,8 @@
 export const APP_BASE_URL = import.meta.env.BASE_URL || '/';
 
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+export const DEFAULT_API_BASE_URL = 'https://getchurnsheild.ojam.workers.dev';
+
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/$/, '');
 
 export function assetUrl(path) {
   return `${APP_BASE_URL}${path.replace(/^\//, '')}`;
@@ -11,11 +13,6 @@ export function watchdogScriptUrl() {
 }
 
 export async function postLead(payload) {
-  if (!API_BASE_URL) {
-    console.info('Skipping lead submission because VITE_API_BASE_URL is not configured.');
-    return { skipped: true };
-  }
-
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 

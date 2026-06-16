@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Cpu, Shield, X } from 'lucide-react';
-import { postLead, watchdogScriptUrl } from '../lib/runtime.js';
+import { API_BASE_URL, getLeadByEmail, postLead, watchdogScriptUrl } from '../lib/runtime.js';
 
 const PROGRESS_KEY = 'getchurnshield:onboarding-progress';
 
@@ -33,41 +33,27 @@ function formatChurn(value) {
   return 'Not selected';
 }
 
-function CalendlyEmbed({ lead, onScheduled }) {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    const onMessage = (event) => {
-      if (event.origin !== 'https://calendly.com') return;
-      if (event.data?.event === 'calendly.event_scheduled') onScheduled?.(event.data);
-    };
-    window.addEventListener('message', onMessage);
-
-    return () => {
-      window.removeEventListener('message', onMessage);
-      try {
-        document.body.removeChild(script);
-      } catch {}
-    };
-  }, [onScheduled]);
-
+function calendlyUrl(lead) {
   const params = new URLSearchParams({
     hide_event_type_details: '1',
     hide_gdpr_banner: '1',
   });
   if (lead?.leadName) params.set('name', lead.leadName);
   if (lead?.leadEmail) params.set('email', lead.leadEmail);
+  return `https://calendly.com/getchurnshield/30min?${params.toString()}`;
+}
 
-  return (
-    <div
-      className="calendly-inline-widget"
-      data-url={`https://calendly.com/getchurnshield/30min?${params.toString()}`}
-      style={{ minWidth: '320px', height: '480px' }}
-    />
-  );
+function emailFailureMessage(result) {
+  if (!result) {
+    return `I saved the request locally, but I could not reach the Worker at ${API_BASE_URL}. Please deploy the latest frontend or check the network connection.`;
+  }
+  if (result.error || result.message) {
+    return `Brevo did not accept the email yet.\n\n${result.error || result.message}`;
+  }
+  if (result.email?.error) {
+    return `Brevo did not accept the email yet.\n\n${result.email.error}`;
+  }
+  return `Brevo did not accept the email yet.\n\nWorker response did not include provider details. API base: ${API_BASE_URL}`;
 }
 
 export default function OnboardingModal({ isOpen, onClose, initialLeadData, onComplete }) {
@@ -87,7 +73,6 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
   const [chatMessages, setChatMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [activeOptions, setActiveOptions] = useState([]);
-  const [showCalendly, setShowCalendly] = useState(false);
   const [leadRecord, setLeadRecord] = useState(savedProgress.lead || null);
   const [isSavingAction, setIsSavingAction] = useState(false);
   const chatStreamRef = useRef(null);
@@ -113,6 +98,35 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
       startAssistant(true);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const email = formData.leadEmail || savedProgress.lead?.leadEmail;
+    if (!email) return;
+    let cancelled = false;
+
+    getLeadByEmail(email).then((result) => {
+      if (cancelled || !result?.lead) return;
+      setLeadRecord(result.lead);
+      saveProgressPatch({
+        lead: result.lead,
+        formData: {
+          ...formData,
+          leadName: result.lead.leadName || formData.leadName,
+          leadUrl: result.lead.leadUrl || formData.leadUrl,
+          leadEmail: result.lead.leadEmail || formData.leadEmail,
+          mrr: result.lead.mrr || formData.mrr,
+          churn: result.lead.churn || formData.churn,
+          strategy: result.lead.strategy || formData.strategy,
+          headache: result.lead.headache || formData.headache,
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, formData.leadEmail]);
 
   if (!isOpen) return null;
 
@@ -223,18 +237,46 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
         'assistant',
         result?.email?.sent
           ? `Deployment email sent through Brevo.\n\nDelivery references:\n${deliveries}`
-          : `The request is saved, but Brevo did not accept the email yet.\n\n${result?.email?.error || 'No provider details returned.'}`
+          : `The request is saved.\n\n${emailFailureMessage(result)}`
       );
     }
 
     if (optionId === 'schedule-call') {
-      await syncLead('open_calendar');
+      const url = calendlyUrl(formData);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      const result = await syncLead('open_calendar');
       saveProgressPatch({ calendarOpened: true });
-      addChatMessage('assistant', 'Opening Calendly with your registration details prefilled. When Calendly confirms a booking, I will save that status.');
-      setShowCalendly(true);
+      addChatMessage(
+        'assistant',
+        result
+          ? 'I opened Calendly in a new tab with your registration details prefilled. After booking, click the confirmation button here so I can save it to Cloudflare and send the schedule confirmation email.'
+          : `I tried to open Calendly, but I could not reach the Worker at ${API_BASE_URL} to save the calendar-opened status. You can still book the call, then come back and confirm it here.`
+      );
       setIsTyping(false);
       setIsSavingAction(false);
+      setActiveOptions([
+        { id: 'confirm-scheduled', text: 'I scheduled the audit' },
+        { id: 'get-code', text: 'View SDK code' },
+        { id: 'send-email', text: 'Send email docs' },
+      ]);
       return;
+    }
+
+    if (optionId === 'confirm-scheduled') {
+      const result = await postLead({ ...formData, action: 'calendar_scheduled', calendarScheduledAt: new Date().toISOString() });
+      if (result?.lead) setLeadRecord(result.lead);
+      saveProgressPatch({
+        lead: result?.lead,
+        email: result?.email,
+        calendarScheduled: true,
+      });
+      const deliveries = result?.email?.deliveries?.map((item) => item.id).filter(Boolean).join('\n') || 'No provider delivery ID returned.';
+      addChatMessage(
+        'assistant',
+        result?.email?.sent
+          ? `Audit call status saved to Cloudflare. Schedule confirmation email sent through Brevo.\n\nDelivery references:\n${deliveries}`
+          : `Audit call status saved.\n\n${emailFailureMessage(result)}`
+      );
     }
 
     setIsTyping(false);
@@ -244,13 +286,6 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
       { id: 'get-code', text: 'View SDK code' },
       { id: 'send-email', text: 'Send email docs' },
     ]);
-  };
-
-  const handleCalendarScheduled = async () => {
-    const result = await postLead({ ...formData, action: 'calendar_scheduled', calendarScheduledAt: new Date().toISOString() });
-    if (result?.lead) setLeadRecord(result.lead);
-    saveProgressPatch({ lead: result?.lead, calendarScheduled: true });
-    addChatMessage('assistant', 'Calendar booking detected and saved to your customer dashboard.');
   };
 
   const handleFinish = async () => {
@@ -362,40 +397,26 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
                   </span>
                 </div>
 
-                {showCalendly ? (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: '0 0 16px 16px', overflow: 'hidden' }}>
-                    <div style={{ background: '#f4f0ff', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e9e5ff' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 'bold' }}>Schedule 30min kick-off call</span>
-                      <button onClick={() => setShowCalendly(false)} style={{ background: 'var(--accent)', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>Back to Chat</button>
-                    </div>
-                    <div style={{ flex: 1, overflowY: 'auto' }}>
-                      <CalendlyEmbed lead={formData} onScheduled={handleCalendarScheduled} />
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div ref={chatStreamRef} style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {chatMessages.map((msg, index) => (
-                        <div key={index} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <div style={{ background: msg.sender === 'user' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)', border: msg.sender === 'user' ? 'none' : '1px solid var(--border)', color: 'var(--ink)', borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', padding: '10px 14px', fontSize: '0.8rem', whiteSpace: 'pre-line' }}>
-                            {msg.text}
-                          </div>
-                          <span style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', fontSize: '0.65rem', color: 'var(--muted)', marginTop: '2px' }}>{msg.timestamp}</span>
-                        </div>
-                      ))}
-                      {isTyping && <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 14px', color: 'var(--muted)' }}>Working...</div>}
-                    </div>
-
-                    {activeOptions.length > 0 && (
-                      <div style={{ padding: '8px 12px', display: 'flex', flexWrap: 'wrap', gap: '8px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(167, 139, 250, 0.1)' }}>
-                        {activeOptions.map((opt) => (
-                          <button key={opt.id} onClick={() => handleOptionClick(opt.id, opt.text)} className="option-pill" disabled={isSavingAction} style={{ background: opt.id === 'schedule-call' ? 'var(--accent)' : 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', padding: '6px 12px', color: 'var(--ink)', fontSize: '0.75rem', fontWeight: '600' }}>
-                            {opt.text}
-                          </button>
-                        ))}
+                <div ref={chatStreamRef} style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ background: msg.sender === 'user' ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)', border: msg.sender === 'user' ? 'none' : '1px solid var(--border)', color: 'var(--ink)', borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', padding: '10px 14px', fontSize: '0.8rem', whiteSpace: 'pre-line' }}>
+                        {msg.text}
                       </div>
-                    )}
-                  </>
+                      <span style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', fontSize: '0.65rem', color: 'var(--muted)', marginTop: '2px' }}>{msg.timestamp}</span>
+                    </div>
+                  ))}
+                  {isTyping && <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 14px', color: 'var(--muted)' }}>Working...</div>}
+                </div>
+
+                {activeOptions.length > 0 && (
+                  <div style={{ padding: '8px 12px', display: 'flex', flexWrap: 'wrap', gap: '8px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(167, 139, 250, 0.1)' }}>
+                    {activeOptions.map((opt) => (
+                      <button key={opt.id} onClick={() => handleOptionClick(opt.id, opt.text)} className="option-pill" disabled={isSavingAction} style={{ background: opt.id === 'schedule-call' || opt.id === 'confirm-scheduled' ? 'var(--accent)' : 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', padding: '6px 12px', color: 'var(--ink)', fontSize: '0.75rem', fontWeight: '600' }}>
+                        {opt.text}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
 

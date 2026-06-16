@@ -48,7 +48,7 @@ export default function Home({ onOpenModal }) {
           boxShadow: '0 4px 20px rgba(124, 58, 237, 0.1)'
         }}>
           <Sparkles size={14} style={{ color: 'var(--accent-glow)' }} />
-          <span style={{ color: 'var(--ink)' }}>100% Managed Service: Code, Video & Updates Handled For You</span>
+          <span style={{ color: 'var(--ink)' }}> Built to Drop Your SaaS Churn by 30%+</span>
         </div>
 
         {/* Hero Title */}
@@ -75,8 +75,10 @@ export default function Home({ onOpenModal }) {
           lineHeight: '1.6',
           color: 'var(--muted)'
         }}>
-          We don't sell you another dashboard. We write the tracking code, script and produce the micro-videos, deploy the hotspots, and continuously update assets whenever your UI changes. If our retention infrastructure doesn't successfully save a user, you owe us nothing.
+          We don’t just sell another dashboard. We architect your entire user growth lifecycle from automated customer acquisition to hyper-personalized onboarding and long-term retention. Get a single, high-fidelity command center that manages your full funnel,
+          so you can focus on building your product while we secure your revenue.
         </p>
+
 
         {/* Urgent Indicator */}
         <div style={{
@@ -149,11 +151,11 @@ export default function Home({ onOpenModal }) {
           <div className="trust-row" style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px', fontSize: '0.8rem', fontWeight: '600', color: 'var(--muted)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Check size={14} style={{ color: 'var(--success)' }} />
-              100% Performance-Based
+              ​Full-Funnel Growth OS
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Check size={14} style={{ color: 'var(--success)' }} />
-              Zero Upfront Retainer
+              Scalable Tiered Pricing
             </span>
           </div>
         </div>
@@ -265,70 +267,66 @@ export default function Home({ onOpenModal }) {
             letterSpacing: '0.05em',
             marginBottom: '16px'
           }}>
-            The Hands-Off Promise
+            Growth OS Comparison
           </div>
           <h2 style={{ fontSize: '2rem', marginBottom: '12px' }}>
-            Stop Buying Subscriptions For Software Your Team Has No Time To Manage
+            Move From Empty Toolkits To An Operating System For Retention
           </h2>
           <p style={{ maxWidth: '640px', margin: '0 auto', fontSize: '0.95rem' }}>
-            Software platforms sell you layout toolkits but leave you with integration homework. We deliver full retention infrastructure as a managed wrapper.
+            Most onboarding tools still leave your team writing scripts, fixing broken guides, and refreshing content manually. ChurnShield gives you a managed growth layer built for acquisition, activation, and long-term retention.
           </p>
         </div>
 
-        <div className="responsive-card-grid comparison-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-          
-          {/* Card 1: Plain SaaS */}
-          <div className="card" style={{ borderColor: 'rgba(248, 113, 113, 0.2)', background: 'rgba(248, 113, 113, 0.01)' }}>
-            <h3 style={{ color: 'var(--danger)', fontSize: '1.2rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <X size={20} />
+        <div className="card comparison-matrix" style={{
+          padding: 0,
+          overflow: 'hidden',
+          borderColor: 'rgba(167, 139, 250, 0.25)',
+          background: 'rgba(255,255,255,0.025)'
+        }}>
+          <div className="comparison-matrix-header">
+            <div>
+              <X size={18} style={{ color: 'var(--danger)' }} />
               <span>Empty SaaS Toolkits</span>
-            </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '0.85rem' }}>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <X size={16} style={{ color: 'var(--danger)', shrink: 0, marginTop: '3px' }} />
-                <span>You must write scripts, record, and manually build onboarding layouts.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <X size={16} style={{ color: 'var(--danger)', shrink: 0, marginTop: '3px' }} />
-                <span>Guides break completely the moment your engineers ship updates or refactor UI.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <X size={16} style={{ color: 'var(--danger)', shrink: 0, marginTop: '3px' }} />
-                <span>Flat monthly software retainers charged regardless of whether metrics improve.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <X size={16} style={{ color: 'var(--danger)', shrink: 0, marginTop: '3px' }} />
-                <span>Floods your app with ugly generic modals that clash with native code styling.</span>
-              </li>
-            </ul>
+            </div>
+            <div>
+              <Check size={18} style={{ color: 'var(--success)' }} />
+              <span>ChurnShield Growth OS</span>
+            </div>
           </div>
 
-          {/* Card 2: GetChurnShield Managed */}
-          <div className="card" style={{ borderColor: 'rgba(52, 211, 153, 0.35)', background: 'rgba(52, 211, 153, 0.02)', boxShadow: '0 10px 30px rgba(52, 211, 153, 0.05)' }}>
-            <h3 style={{ color: 'var(--success)', fontSize: '1.2rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Check size={20} />
-              <span>GetChurnShield Managed Engine</span>
-            </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '0.85rem' }}>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <Check size={16} style={{ color: 'var(--success)', shrink: 0, marginTop: '3px' }} />
-                <span><strong>We Handle It All:</strong> Custom video scripting, professional asset recording, and telemetry setup.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <Check size={16} style={{ color: 'var(--success)', shrink: 0, marginTop: '3px' }} />
-                <span><strong>Continuous Maintenance:</strong> We track code releases and refresh videos automatically within 24 hours.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <Check size={16} style={{ color: 'var(--success)', shrink: 0, marginTop: '3px' }} />
-                <span><strong>Performance Model:</strong> We collect only 20% of your combined CAC + LTV value on verified saves.</span>
-              </li>
-              <li style={{ display: 'flex', gap: '10px' }}>
-                <Check size={16} style={{ color: 'var(--success)', shrink: 0, marginTop: '3px' }} />
-                <span><strong>Shadow DOM Sandbox:</strong> Absolute style containment that injects smoothly without tracking bugs.</span>
-              </li>
-            </ul>
-          </div>
-
+          {[
+            [
+              ['Manual Funnel Building', 'You must write scripts, record, and manually build layouts.'],
+              ['Architected Growth', 'Full-funnel setup from acquisition to long-term retention.']
+            ],
+            [
+              ['Fragile Integrations', 'Guides break every time your engineers ship updates.'],
+              ['Adaptive Infrastructure', 'Continuous monitoring with instant updates when your UI shifts.']
+            ],
+            [
+              ['Manual Content Updates', 'Constant effort required to keep onboarding current.'],
+              ['Total Content Control', 'Swap videos and update hotspots instantly via your custom dashboard.']
+            ],
+            [
+              ['Flat Monthly Fees', 'You pay for tools you still have to manage yourself.'],
+              ['Scalable Tiered Licensing', 'Value-aligned pricing that grows with your MAU.']
+            ],
+            [
+              ['Generic UX', 'Bloated modals that clash with your native brand styling.'],
+              ['Invisible Native UX', 'Shadow DOM delivery that feels like part of your core code.']
+            ]
+          ].map(([empty, shield]) => (
+            <div className="comparison-matrix-row" key={empty[0]}>
+              <div>
+                <strong>{empty[0]}:</strong>
+                <span>{empty[1]}</span>
+              </div>
+              <div>
+                <strong>{shield[0]}:</strong>
+                <span>{shield[1]}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

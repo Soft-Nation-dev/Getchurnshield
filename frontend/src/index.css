@@ -473,11 +473,15 @@ p {
 .customer-status-tile {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
   padding: 18px;
   border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--card);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .customer-status-tile svg {
@@ -487,6 +491,11 @@ p {
 .customer-status-tile.is-done {
   border-color: rgba(52, 211, 153, 0.4);
   background: rgba(52, 211, 153, 0.05);
+}
+
+.customer-status-tile.is-active {
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.2), var(--shadow-soft);
 }
 
 .customer-status-tile.is-done svg {
@@ -571,9 +580,80 @@ p {
   word-break: break-all;
 }
 
+.customer-module-panel {
+  margin-bottom: 16px;
+}
+
+.customer-module-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.calendar-action-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.05);
+}
+
+.calendar-action-box a {
+  color: var(--success);
+  font-weight: 700;
+}
+
 .muted-text {
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.comparison-matrix-header,
+.comparison-matrix-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.comparison-matrix-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.comparison-matrix-header > div:first-child,
+.comparison-matrix-row > div:first-child {
+  border-right: 1px solid rgba(167, 139, 250, 0.16);
+}
+
+.comparison-matrix-row > div {
+  padding: 24px 26px;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.14);
+  min-height: 136px;
+}
+
+.comparison-matrix-row:last-child > div {
+  border-bottom: none;
+}
+
+.comparison-matrix-row strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 1.06rem;
+  line-height: 1.25;
+}
+
+.comparison-matrix-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 @media (max-width: 900px) {
@@ -694,6 +774,34 @@ p {
     padding: 0 8px;
   }
 
+  .comparison-matrix-header,
+  .comparison-matrix-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .comparison-matrix-header > div,
+  .comparison-matrix-row > div {
+    padding: 18px !important;
+    min-height: auto;
+  }
+
+  .comparison-matrix-header > div:first-child,
+  .comparison-matrix-row > div:first-child {
+    border-right: none;
+  }
+
+  .comparison-matrix-header > div:first-child {
+    border-bottom: 1px solid rgba(248, 113, 113, 0.18);
+  }
+
+  .comparison-matrix-row > div:first-child {
+    background: rgba(248, 113, 113, 0.02);
+  }
+
+  .comparison-matrix-row > div:nth-child(2) {
+    background: rgba(52, 211, 153, 0.025);
+  }
+
   .hero-video-shell {
     margin-top: 36px !important;
     border-radius: 16px !important;
@@ -749,11 +857,6 @@ p {
 
   .modal-chat-window {
     height: min(58dvh, 420px) !important;
-  }
-
-  .calendly-inline-widget {
-    min-width: 0 !important;
-    height: 420px !important;
   }
 
   .floating-cta {
@@ -856,5 +959,14 @@ p {
 
   .customer-status-tile {
     padding: 14px;
+  }
+
+  .customer-module-actions {
+    flex-direction: column;
+  }
+
+  .customer-module-actions button {
+    width: 100%;
+    justify-content: center;
   }
 }
