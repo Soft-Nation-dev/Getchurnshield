@@ -60,6 +60,12 @@ function hasValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || '').trim());
 }
 
+function normalizeUrl(value) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export default function OnboardingModal({ isOpen, onClose, initialLeadData, onComplete }) {
   const savedProgress = readSavedProgress();
   const [step, setStep] = useState(savedProgress.diagnosticsCompleted ? 2 : 1);
@@ -79,6 +85,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
   const [activeOptions, setActiveOptions] = useState([]);
   const [leadRecord, setLeadRecord] = useState(savedProgress.lead || null);
   const [isSavingAction, setIsSavingAction] = useState(false);
+  const [isEditingRegistration, setIsEditingRegistration] = useState(false);
   const chatStreamRef = useRef(null);
 
   useEffect(() => {
@@ -152,13 +159,14 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
 
   const syncLead = async (action = '') => {
     const leadEmail = (formData.leadEmail || leadRecord?.leadEmail || '').trim();
+    const leadUrl = normalizeUrl(formData.leadUrl || leadRecord?.leadUrl || '');
     if (!hasValidEmail(leadEmail)) {
       return { error: 'Missing customer email. Enter a valid business email before sending docs or scheduling confirmations.' };
     }
 
     const result = await postLead({
       leadName: formData.leadName,
-      leadUrl: formData.leadUrl,
+      leadUrl,
       leadEmail,
       mrr: formData.mrr,
       churn: formData.churn,
@@ -168,7 +176,9 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
     });
     if (result?.lead) {
       setLeadRecord(result.lead);
-      saveProgressPatch({ lead: result.lead, email: result.email, formData });
+      const nextFormData = { ...formData, leadUrl: result.lead.leadUrl || leadUrl, leadEmail };
+      setFormData(nextFormData);
+      saveProgressPatch({ lead: result.lead, email: result.email, formData: nextFormData });
     }
     return result;
   };
@@ -179,10 +189,26 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
       saveProgressPatch({ formData });
       return;
     }
+    const normalizedForm = { ...formData, leadUrl: normalizeUrl(formData.leadUrl), leadEmail: formData.leadEmail.trim() };
+    setFormData(normalizedForm);
     setStep(2);
-    saveProgressPatch({ formData, diagnosticsCompleted: true, currentStep: 2 });
+    saveProgressPatch({ formData: normalizedForm, diagnosticsCompleted: true, currentStep: 2 });
+    const result = await postLead({ ...normalizedForm, action: isEditingRegistration ? 'update_registration' : '' });
+    if (result?.lead) {
+      setLeadRecord(result.lead);
+      saveProgressPatch({ lead: result.lead, email: result.email, formData: normalizedForm });
+    }
+    if (isEditingRegistration) {
+      setIsEditingRegistration(false);
+      addChatMessage('assistant', `Registration updated and saved to Cloudflare.\n\nMRR level: ${formatMrr(normalizedForm.mrr)}\nCurrent churn: ${formatChurn(normalizedForm.churn)}\nStrategy: ${normalizedForm.strategy === 'diy' ? 'Self-Service Video Hub' : 'Concierge Done-for-You'}\nApp URL: ${normalizedForm.leadUrl}`);
+      setActiveOptions([
+        { id: 'schedule-call', text: 'Schedule call' },
+        { id: 'get-code', text: 'View SDK code' },
+        { id: 'send-email', text: 'Send email docs' },
+      ]);
+      return;
+    }
     startAssistant(false);
-    await syncLead();
   };
 
   const startAssistant = (resume = false) => {
@@ -266,7 +292,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
     }
 
     if (optionId === 'schedule-call') {
-      const url = calendlyUrl(formData);
+      const url = calendlyUrl({ ...formData, leadUrl: normalizeUrl(formData.leadUrl) });
       window.open(url, '_blank', 'noopener,noreferrer');
       const result = await syncLead('open_calendar');
       saveProgressPatch({ calendarOpened: true });
@@ -289,6 +315,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
     if (optionId === 'confirm-scheduled') {
       const result = await postLead({
         ...formData,
+        leadUrl: normalizeUrl(formData.leadUrl),
         leadEmail: (formData.leadEmail || leadRecord?.leadEmail || '').trim(),
         action: 'calendar_scheduled',
         calendarScheduledAt: new Date().toISOString(),
@@ -364,11 +391,11 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
               <div>
                 <label className="form-label">Company App URL</label>
                 <input
-                  type="url"
+                  type="text"
                   name="leadUrl"
                   value={formData.leadUrl}
                   onChange={handleChange}
-                  placeholder="https://app.com"
+                  placeholder="app.com"
                   required
                   className="form-input"
                   style={{ background: '#1c122e' }}
@@ -445,7 +472,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
               </div>
 
               <button type="submit" className="cta-button" style={{ width: '100%' }}>
-                Continue Setup
+                {isEditingRegistration ? 'Save Updates' : 'Continue Setup'}
               </button>
             </form>
           ) : (
@@ -492,7 +519,7 @@ export default function OnboardingModal({ isOpen, onClose, initialLeadData, onCo
               </div>
 
               <div className="modal-action-row" style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(1)} className="cta-button" style={{ background: 'transparent', border: '1px solid var(--border)', flex: 1, boxShadow: 'none' }}>
+                <button onClick={() => { setIsEditingRegistration(true); setStep(1); }} className="cta-button" style={{ background: 'transparent', border: '1px solid var(--border)', flex: 1, boxShadow: 'none' }}>
                   Edit Registration
                 </button>
                 <button onClick={handleFinish} className="cta-button" style={{ flex: 1 }} disabled={isSavingAction}>

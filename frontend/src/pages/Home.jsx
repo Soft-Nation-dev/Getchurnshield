@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { Shield, Play, Check, X, Sparkles, Zap, AlertTriangle, ArrowRight, Activity, Terminal, ShieldAlert } from 'lucide-react';
 import { assetUrl, postLead } from '../lib/runtime.js';
 
+function normalizeUrl(value) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export default function Home({ onOpenModal }) {
   const [formData, setFormData] = useState({
     leadName: '',
@@ -18,12 +24,14 @@ export default function Home({ onOpenModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    onOpenModal(formData);
+    const normalizedFormData = { ...formData, leadUrl: normalizeUrl(formData.leadUrl), leadEmail: formData.leadEmail.trim() };
+    setFormData(normalizedFormData);
+    onOpenModal(normalizedFormData);
 
     await postLead({
-      leadName: formData.leadName,
-      leadUrl: formData.leadUrl,
-      leadEmail: formData.leadEmail,
+      leadName: normalizedFormData.leadName,
+      leadUrl: normalizedFormData.leadUrl,
+      leadEmail: normalizedFormData.leadEmail,
     });
   };
 
@@ -121,11 +129,11 @@ export default function Home({ onOpenModal }) {
               <div>
                 <label className="form-label">Company App URL</label>
                 <input
-                  type="url"
+                  type="text"
                   name="leadUrl"
                   value={formData.leadUrl}
                   onChange={handleInputChange}
-                  placeholder="https://app.com"
+                  placeholder="app.com"
                   required
                   className="form-input"
                 />

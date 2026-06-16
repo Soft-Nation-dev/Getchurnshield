@@ -591,6 +591,17 @@ p {
   margin-top: 16px;
 }
 
+.customer-registration-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.customer-registration-form-wide {
+  grid-column: 1 / -1;
+}
+
 .calendar-action-box {
   margin-top: 14px;
   padding: 14px;
@@ -968,5 +979,9 @@ p {
   .customer-module-actions button {
     width: 100%;
     justify-content: center;
+  }
+
+  .customer-registration-form {
+    grid-template-columns: 1fr;
   }
 }

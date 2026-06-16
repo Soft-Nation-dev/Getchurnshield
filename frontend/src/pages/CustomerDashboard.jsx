@@ -16,6 +16,12 @@ function stageDone(lead, key) {
   return Boolean(lead?.onboardingProgress?.[key] || readSavedProgress()?.[key]);
 }
 
+function normalizeUrl(value) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 function StatusTile({ icon: Icon, label, value, done, active, onClick }) {
   return (
     <button type="button" className={`customer-status-tile ${done ? 'is-done' : ''} ${active ? 'is-active' : ''}`} onClick={onClick}>
@@ -38,12 +44,30 @@ export default function CustomerDashboard() {
   const [activeModule, setActiveModule] = useState('registration');
   const [actionStatus, setActionStatus] = useState('');
   const [showCalendarTools, setShowCalendarTools] = useState(false);
+  const [registrationDraft, setRegistrationDraft] = useState({
+    leadName: saved.lead?.leadName || saved.formData?.leadName || '',
+    leadUrl: saved.lead?.leadUrl || saved.formData?.leadUrl || '',
+    leadEmail: saved.lead?.leadEmail || saved.formData?.leadEmail || '',
+    mrr: saved.lead?.mrr || saved.formData?.mrr || '',
+    churn: saved.lead?.churn || saved.formData?.churn || '',
+    strategy: saved.lead?.strategy || saved.formData?.strategy || 'diy',
+    headache: saved.lead?.headache || saved.formData?.headache || '',
+  });
 
   const refreshLead = async (targetEmail = email) => {
     if (!targetEmail) return null;
     const result = await getLeadByEmail(targetEmail);
     if (result?.lead) {
       setLead(result.lead);
+      setRegistrationDraft({
+        leadName: result.lead.leadName || '',
+        leadUrl: result.lead.leadUrl || '',
+        leadEmail: result.lead.leadEmail || '',
+        mrr: result.lead.mrr || '',
+        churn: result.lead.churn || '',
+        strategy: result.lead.strategy || 'diy',
+        headache: result.lead.headache || '',
+      });
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead, dashboardVisited: true }));
       return result.lead;
     }
@@ -116,6 +140,39 @@ export default function CustomerDashboard() {
       setActionStatus('Calendar schedule status saved.');
     }
     await refreshLead(lead.leadEmail);
+  };
+
+  const saveRegistrationUpdates = async (event) => {
+    event.preventDefault();
+    if (!registrationDraft.leadEmail) {
+      setActionStatus('Add a registration email before saving.');
+      return;
+    }
+    setActionStatus('Updating registration in Cloudflare...');
+    const payload = {
+      ...registrationDraft,
+      leadUrl: normalizeUrl(registrationDraft.leadUrl),
+      leadEmail: registrationDraft.leadEmail.trim(),
+      action: 'update_registration',
+    };
+    const result = await postLead(payload);
+    if (result?.lead) {
+      setLead(result.lead);
+      setEmail(result.lead.leadEmail);
+      setRegistrationDraft({
+        leadName: result.lead.leadName || '',
+        leadUrl: result.lead.leadUrl || '',
+        leadEmail: result.lead.leadEmail || '',
+        mrr: result.lead.mrr || '',
+        churn: result.lead.churn || '',
+        strategy: result.lead.strategy || 'diy',
+        headache: result.lead.headache || '',
+      });
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...readSavedProgress(), lead: result.lead, formData: payload }));
+      setActionStatus('Registration updated and saved to Cloudflare.');
+    } else {
+      setActionStatus(result?.error || 'Registration update could not be saved yet.');
+    }
   };
 
   const moduleDetails = {
@@ -205,6 +262,32 @@ export default function CustomerDashboard() {
               ))}
             </div>
             <div className="customer-module-actions">
+              {activeModule === 'registration' ? (
+                <form className="customer-registration-form" onSubmit={saveRegistrationUpdates}>
+                  <input className="form-input" value={registrationDraft.leadName} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, leadName: event.target.value }))} placeholder="Founder name" required />
+                  <input className="form-input" value={registrationDraft.leadUrl} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, leadUrl: event.target.value }))} placeholder="app.com" required />
+                  <input className="form-input" type="email" value={registrationDraft.leadEmail} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, leadEmail: event.target.value }))} placeholder="founder@company.com" required />
+                  <select className="form-input" value={registrationDraft.mrr} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, mrr: event.target.value }))} required>
+                    <option value="" disabled>MRR</option>
+                    <option value="low">&lt;$10k</option>
+                    <option value="mid">$10k - $100k</option>
+                    <option value="high">$100k+</option>
+                  </select>
+                  <select className="form-input" value={registrationDraft.churn} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, churn: event.target.value }))} required>
+                    <option value="" disabled>Churn</option>
+                    <option value="none">Don't know / Not tracking</option>
+                    <option value="low">&lt;2%</option>
+                    <option value="mid">2% - 5%</option>
+                    <option value="high">5%+</option>
+                  </select>
+                  <select className="form-input" value={registrationDraft.strategy} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, strategy: event.target.value }))} required>
+                    <option value="diy">DIY / Self-service</option>
+                    <option value="dfy">Concierge</option>
+                  </select>
+                  <input className="form-input customer-registration-form-wide" value={registrationDraft.headache} onChange={(event) => setRegistrationDraft((prev) => ({ ...prev, headache: event.target.value }))} placeholder="Biggest churn headache" required />
+                  <button className="cta-button customer-registration-form-wide" type="submit">Save registration updates</button>
+                </form>
+              ) : null}
               {activeModule === 'sdk' ? <button className="cta-button" onClick={() => runCloudAction('generate_sdk')}>Generate SDK</button> : null}
               {activeModule === 'email' ? <button className="cta-button" onClick={() => runCloudAction('send_docs')}>Send deployment email</button> : null}
               {activeModule === 'calendar' ? (
