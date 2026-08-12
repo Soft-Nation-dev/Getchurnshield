@@ -8,6 +8,9 @@ export default function Footer() {
         <p style={{ fontSize: '0.75rem', marginTop: '8px', color: 'rgba(168, 155, 196, 0.5)' }}>
           High-performance onboarding telemetry wrapper & behavioral watchdogs. Billed strictly on recovered user LTV.
         </p>
+        <p style={{ fontSize: '0.75rem', marginTop: '8px', color: 'rgba(168, 155, 196, 0.5)' }}>
+          This platform/brand is owned and operated by CHIDOZIE JOACHIM OKORO.
+        </p>
       </div>
     </footer>
   );
